@@ -1,0 +1,1386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DBMS Lab Manual – 6 Practicals</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a0e1a;--surface:#111827;--card:#1a2235;--accent:#00d4aa;--accent2:#ff6b6b;--accent3:#ffd166;--text:#e8edf5;--muted:#7a8ba3;--border:#2a3a52;--mono:'Space Mono',monospace;--sans:'Syne',sans-serif;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:100vh;overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(var(--border) 1px,transparent 1px),linear-gradient(90deg,var(--border) 1px,transparent 1px);background-size:40px 40px;opacity:.2;pointer-events:none;z-index:0;}
+
+nav{position:sticky;top:0;background:rgba(10,14,26,.95);backdrop-filter:blur(14px);border-bottom:1px solid var(--border);padding:13px 18px;display:flex;align-items:center;gap:10px;z-index:1000;}
+.nav-logo{font-family:var(--mono);font-size:.78rem;color:var(--accent);letter-spacing:2px;}
+.nav-title{font-size:.92rem;font-weight:800;}
+.nav-back{margin-left:auto;background:var(--border);border:none;color:var(--text);padding:6px 14px;border-radius:6px;cursor:pointer;font-family:var(--mono);font-size:.7rem;display:none;transition:background .2s;}
+.nav-back:hover{background:var(--accent);color:#000;}
+
+.screen{display:none;position:relative;z-index:1;}
+.screen.active{display:block;}
+
+/* INDEX */
+.hero{text-align:center;padding:55px 20px 25px;}
+.hero-badge{display:inline-block;font-family:var(--mono);font-size:.66rem;color:var(--accent);border:1px solid var(--accent);padding:4px 12px;border-radius:20px;margin-bottom:16px;letter-spacing:2px;}
+.hero h1{font-size:clamp(1.9rem,6vw,3.2rem);font-weight:800;line-height:1.1;margin-bottom:12px;}
+.hero h1 span{color:var(--accent);}
+.hero p{color:var(--muted);font-size:.9rem;max-width:520px;margin:0 auto;line-height:1.7;}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:18px;padding:26px 18px 50px;max-width:1080px;margin:0 auto;}
+.pcard{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:26px 24px 54px;cursor:pointer;position:relative;overflow:hidden;transition:transform .25s,border-color .25s,box-shadow .25s;}
+.pcard::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--ca,var(--accent));}
+.pcard:hover{transform:translateY(-4px);border-color:var(--ca,var(--accent));box-shadow:0 12px 36px rgba(0,0,0,.4);}
+.pcard .pnum{font-family:var(--mono);font-size:.66rem;color:var(--ca,var(--accent));letter-spacing:2px;margin-bottom:10px;}
+.pcard .pico{font-size:1.8rem;margin-bottom:10px;}
+.pcard .ptitle{font-size:1.05rem;font-weight:800;margin-bottom:7px;line-height:1.3;}
+.pcard .pdesc{font-size:.8rem;color:var(--muted);line-height:1.55;}
+.pcard .parr{position:absolute;bottom:18px;right:18px;width:30px;height:30px;background:var(--ca,var(--accent));border-radius:50%;display:flex;align-items:center;justify-content:center;color:#000;font-size:.9rem;transition:transform .2s;}
+.pcard:hover .parr{transform:scale(1.15);}
+
+/* PAGE LAYOUT */
+.ppage{max-width:860px;margin:0 auto;padding:24px 16px 70px;}
+.phdr{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:26px;margin-bottom:22px;position:relative;overflow:hidden;}
+.phdr::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:var(--aa,var(--accent));}
+.phdr .pnum{font-family:var(--mono);font-size:.66rem;color:var(--aa,var(--accent));letter-spacing:2px;margin-bottom:8px;}
+.phdr h2{font-size:clamp(1.25rem,4vw,1.8rem);font-weight:800;margin-bottom:8px;}
+.phdr .aim{font-size:.82rem;color:var(--muted);line-height:1.6;}
+
+.tabs{display:flex;gap:7px;margin-bottom:20px;flex-wrap:wrap;}
+.tab{background:var(--card);border:1px solid var(--border);color:var(--muted);padding:7px 15px;border-radius:8px;cursor:pointer;font-family:var(--mono);font-size:.68rem;letter-spacing:1px;transition:all .2s;}
+.tab.active,.tab:hover{background:var(--aa,var(--accent));color:#000;border-color:transparent;}
+
+.tc{display:none;}.tc.active{display:block;}
+
+.sec{background:var(--card);border:1px solid var(--border);border-radius:13px;padding:22px;margin-bottom:16px;}
+.sec h3{font-size:.72rem;font-family:var(--mono);color:var(--aa,var(--accent));letter-spacing:2px;margin-bottom:12px;text-transform:uppercase;}
+.sec p,.sec li{font-size:.87rem;color:var(--muted);line-height:1.7;}
+.sec ul,.sec ol{padding-left:20px;}
+.sec li{margin-bottom:5px;}
+.sec strong{color:var(--text);}
+.sec code{font-family:var(--mono);font-size:.78rem;color:var(--accent3);background:rgba(255,209,102,.08);padding:1px 5px;border-radius:3px;}
+
+pre{background:#060b14;border:1px solid var(--border);border-radius:10px;padding:16px;overflow-x:auto;font-family:var(--mono);font-size:.75rem;line-height:1.8;color:#c9d8f0;margin-top:10px;}
+.kw{color:#ff79c6;}.fn{color:#50fa7b;}.str{color:#f1fa8c;}.cm{color:#6272a4;font-style:italic;}.ty{color:var(--accent);}.nm{color:#ffb86c;}
+
+/* PRACTICAL EXERCISE AREA */
+.ex-wrap{background:#060b14;border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-top:10px;}
+.ex-bar{background:var(--surface);padding:9px 14px;display:flex;align-items:center;gap:7px;border-bottom:1px solid var(--border);font-family:var(--mono);font-size:.68rem;color:var(--muted);}
+.ex-dot{width:9px;height:9px;border-radius:50%;}
+.ex-body{padding:16px;}
+
+.sql-row{display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap;}
+.sqlin{flex:1;min-width:190px;background:#0a0f1e;border:1px solid var(--border);border-radius:8px;padding:10px 12px;color:var(--text);font-family:var(--mono);font-size:.76rem;outline:none;resize:vertical;min-height:70px;transition:border-color .2s;}
+.sqlin:focus{border-color:var(--aa,var(--accent));}
+.btn-run{background:var(--aa,var(--accent));color:#000;border:none;padding:10px 18px;border-radius:8px;cursor:pointer;font-family:var(--mono);font-size:.73rem;font-weight:700;white-space:nowrap;transition:opacity .2s;}
+.btn-run:hover{opacity:.82;}
+.btn-sec{background:var(--surface);color:var(--muted);border:1px solid var(--border);padding:10px 13px;border-radius:8px;cursor:pointer;font-family:var(--mono);font-size:.73rem;transition:all .2s;}
+.btn-sec:hover{border-color:var(--accent2);color:var(--accent2);}
+
+.outlog{background:#060b14;border:1px solid var(--border);border-radius:8px;padding:11px 13px;font-family:var(--mono);font-size:.73rem;min-height:55px;max-height:180px;overflow-y:auto;margin-top:10px;line-height:1.75;}
+.ok{color:var(--accent);}.err{color:var(--accent2);}.inf{color:var(--accent3);}.neu{color:var(--muted);}
+
+.res{border:1px solid var(--border);border-radius:8px;overflow:hidden;font-family:var(--mono);font-size:.74rem;margin-top:12px;}
+.res table{width:100%;border-collapse:collapse;}
+.res th{background:var(--surface);color:var(--aa,var(--accent));padding:7px 11px;text-align:left;font-size:.68rem;letter-spacing:1px;}
+.res td{padding:6px 11px;color:var(--muted);border-top:1px solid var(--border);}
+.res tr:hover td{background:rgba(255,255,255,.02);}
+.rmsg{padding:11px 13px;font-family:var(--mono);font-size:.74rem;}
+
+/* TASK CHECKLIST */
+.tasklist{display:flex;flex-direction:column;gap:8px;margin-top:10px;}
+.task{display:flex;align-items:flex-start;gap:10px;background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--aa,var(--accent));border-radius:8px;padding:11px 14px;cursor:pointer;transition:all .2s;}
+.task input[type=checkbox]{accent-color:var(--aa,var(--accent));width:15px;height:15px;flex-shrink:0;margin-top:3px;cursor:pointer;}
+.task span{font-size:.83rem;color:var(--muted);line-height:1.55;}
+.task.done span{color:var(--text);opacity:.55;text-decoration:line-through;}
+
+/* NORMALIZATION */
+.norm-btns{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:13px;}
+.nbtn{background:var(--surface);border:1px solid var(--border);color:var(--muted);padding:7px 13px;border-radius:8px;cursor:pointer;font-family:var(--mono);font-size:.68rem;transition:all .2s;}
+.nbtn.active{background:var(--aa,var(--accent));color:#000;border-color:transparent;}
+.ntbl{width:100%;overflow-x:auto;margin-top:8px;}
+.ntbl table{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:.74rem;min-width:360px;}
+.ntbl th{background:var(--surface);color:var(--aa,var(--accent));padding:7px 11px;text-align:left;font-size:.67rem;letter-spacing:1px;}
+.ntbl td{padding:6px 11px;color:var(--muted);border-top:1px solid var(--border);}
+.ntbl .bad{color:var(--accent2);}
+
+/* TRANSACTION */
+.txn-steps{display:flex;flex-direction:column;gap:8px;margin-top:10px;}
+.txstep{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px 14px;display:flex;align-items:center;gap:11px;font-size:.82rem;opacity:.35;transition:all .4s;}
+.txstep.done{opacity:1;border-color:var(--aa,var(--accent));}
+.txstep.fail{opacity:1;border-color:var(--accent2);}
+.txbtn-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:13px;}
+.txbtn{padding:9px 16px;border-radius:8px;border:1px solid var(--border);cursor:pointer;font-family:var(--mono);font-size:.71rem;transition:all .2s;}
+.txcom{background:rgba(0,212,170,.1);color:var(--accent);border-color:var(--accent);}
+.txcom:hover{background:var(--accent);color:#000;}
+.txrb{background:rgba(255,107,107,.1);color:var(--accent2);border-color:var(--accent2);}
+.txrb:hover{background:var(--accent2);color:#fff;}
+.txrst{background:var(--surface);color:var(--muted);}
+
+/* ACID */
+.acid-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(185px,1fr));gap:11px;margin-top:10px;}
+.acid-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:15px;text-align:center;cursor:pointer;transition:all .25s;}
+.acid-card:hover,.acid-card.on{border-color:var(--aa,var(--accent));background:rgba(0,212,170,.06);}
+.acid-letter{font-size:1.9rem;font-weight:800;color:var(--aa,var(--accent));font-family:var(--mono);line-height:1;margin-bottom:5px;}
+.acid-name{font-weight:700;font-size:.87rem;margin-bottom:5px;}
+.acid-desc{font-size:.76rem;color:var(--muted);line-height:1.5;display:none;}
+.acid-card.on .acid-desc{display:block;}
+
+/* INDEX SEARCH */
+.idx-demo{display:flex;gap:14px;flex-wrap:wrap;margin-top:10px;}
+.idx-col{flex:1;min-width:180px;}
+.idx-col h4{font-family:var(--mono);font-size:.66rem;color:var(--aa,var(--accent));letter-spacing:2px;margin-bottom:9px;}
+.irow{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:5px 10px;font-family:var(--mono);font-size:.71rem;color:var(--muted);margin-bottom:4px;transition:all .2s;}
+.irow.hi{border-color:var(--aa,var(--accent));color:var(--text);background:rgba(0,212,170,.07);}
+.idx-in{background:var(--surface);border:1px solid var(--border);border-radius:7px;padding:8px 12px;color:var(--text);font-family:var(--mono);font-size:.75rem;outline:none;transition:border-color .2s;flex:1;}
+.idx-in:focus{border-color:var(--aa,var(--accent));}
+
+/* ER */
+.er-wrap{display:flex;flex-wrap:wrap;align-items:center;gap:6px;padding:4px 0;}
+.er-box{display:inline-flex;flex-direction:column;border:2px solid var(--aa,var(--accent));border-radius:8px;overflow:hidden;min-width:120px;font-family:var(--mono);font-size:.71rem;vertical-align:top;}
+.er-head{background:var(--aa,var(--accent));color:#000;font-weight:700;padding:6px 11px;font-size:.73rem;letter-spacing:1px;}
+.er-row{padding:4px 11px;color:var(--muted);border-top:1px solid var(--border);}
+.er-pk{color:var(--accent3);}.er-fk{color:var(--accent2);}
+.er-rel{color:var(--muted);font-size:.7rem;font-family:var(--mono);padding:0 6px;}
+
+/* QUIZ */
+.q-txt{font-size:.9rem;font-weight:600;margin-bottom:12px;line-height:1.5;}
+.q-opts{display:flex;flex-direction:column;gap:8px;}
+.q-opt{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:9px 14px;cursor:pointer;font-size:.82rem;color:var(--muted);transition:all .2s;text-align:left;}
+.q-opt:hover{border-color:var(--aa,var(--accent));color:var(--text);}
+.q-opt.ok{background:rgba(0,212,170,.12);border-color:var(--accent);color:var(--accent);}
+.q-opt.ng{background:rgba(255,107,107,.12);border-color:var(--accent2);color:var(--accent2);}
+.q-fb{margin-top:11px;font-size:.81rem;padding:10px 13px;border-radius:8px;display:none;}
+.q-next{margin-top:11px;background:var(--surface);border:1px solid var(--border);color:var(--text);padding:8px 17px;border-radius:8px;cursor:pointer;font-family:var(--mono);font-size:.7rem;display:none;transition:all .2s;}
+.q-next:hover{background:var(--aa,var(--accent));color:#000;border-color:transparent;}
+.q-score{text-align:center;padding:26px;font-size:1rem;font-weight:800;}
+.score-n{font-size:2.7rem;color:var(--aa,var(--accent));display:block;}
+.q-restart{margin-top:13px;background:var(--surface);border:1px solid var(--border);color:var(--text);padding:8px 17px;border-radius:8px;cursor:pointer;font-family:var(--mono);font-size:.7rem;transition:all .2s;}
+.q-restart:hover{background:var(--aa,var(--accent));color:#000;border-color:transparent;}
+.prog-row{display:flex;align-items:center;gap:10px;margin-bottom:13px;}
+.prog-bar{flex:1;height:4px;background:var(--border);border-radius:4px;overflow:hidden;}
+.prog-fill{height:100%;background:var(--aa,var(--accent));border-radius:4px;transition:width .4s;}
+.prog-lbl{font-family:var(--mono);font-size:.66rem;color:var(--muted);white-space:nowrap;}
+
+/* STEPS */
+.steps-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px;}
+.step-box{flex:1;min-width:130px;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:13px;text-align:center;}
+.step-num{font-family:var(--mono);font-size:.63rem;color:var(--aa,var(--accent));margin-bottom:5px;letter-spacing:2px;}
+.step-title{font-size:.83rem;font-weight:700;margin-bottom:4px;}
+.step-desc{font-size:.73rem;color:var(--muted);line-height:1.5;}
+
+/* HINT BOX */
+.hint{background:rgba(255,209,102,.07);border:1px solid rgba(255,209,102,.25);border-radius:8px;padding:10px 14px;font-size:.79rem;color:var(--accent3);margin-top:10px;line-height:1.6;}
+.hint strong{color:var(--accent3);}
+
+footer{text-align:center;padding:28px 20px 20px;border-top:1px solid var(--border);color:var(--muted);font-size:.73rem;font-family:var(--mono);position:relative;z-index:1;line-height:2;}
+footer strong{color:var(--accent);}
+
+@media(max-width:600px){
+  .sql-row{flex-direction:column;}
+  .btn-run,.btn-sec{width:100%;}
+  .idx-demo{flex-direction:column;}
+  .acid-grid{grid-template-columns:1fr 1fr;}
+  .steps-row{flex-direction:column;}
+  .er-wrap{flex-direction:column;}
+}
+.fade{animation:fi .35s ease;}
+@keyframes fi{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:none;}}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">⬡ DBMS</div>
+  <div class="nav-title" id="navTitle">Lab Manual</div>
+  <button class="nav-back" id="navBack" onclick="showIndex()">← Back to Index</button>
+</nav>
+
+<!-- ═══════════════ INDEX ═══════════════ -->
+<div class="screen active" id="s0">
+  <div class="hero">
+    <div class="hero-badge">DATABASE MANAGEMENT SYSTEMS</div>
+    <h1>DBMS <span>Lab</span> Manual</h1>
+    <p>6 fully interactive practicals — read the theory, study SQL code, and actually perform hands-on exercises in the built-in editor. Click any card to begin.</p>
+  </div>
+  <div class="grid">
+    <div class="pcard" style="--ca:#00d4aa" onclick="showP(1)">
+      <div class="pnum">PRACTICAL // 01</div>
+      <div class="pico">🗄️</div>
+      <div class="ptitle">DDL Commands & Schema Design</div>
+      <div class="pdesc">CREATE, ALTER, DROP, TRUNCATE — build and modify database schemas in the live SQL editor.</div>
+      <div class="parr">→</div>
+    </div>
+    <div class="pcard" style="--ca:#ffd166" onclick="showP(2)">
+      <div class="pnum">PRACTICAL // 02</div>
+      <div class="pico">📊</div>
+      <div class="ptitle">DML Commands & SQL Queries</div>
+      <div class="pdesc">INSERT, UPDATE, DELETE, SELECT with WHERE, GROUP BY, HAVING — manipulate a live table.</div>
+      <div class="parr">→</div>
+    </div>
+    <div class="pcard" style="--ca:#ff6b6b" onclick="showP(3)">
+      <div class="pnum">PRACTICAL // 03</div>
+      <div class="pico">🔗</div>
+      <div class="ptitle">Normalization (1NF → 3NF)</div>
+      <div class="pdesc">Watch tables transform step by step from raw UNF to 3NF — then write your own normalized schema.</div>
+      <div class="parr">→</div>
+    </div>
+    <div class="pcard" style="--ca:#a78bfa" onclick="showP(4)">
+      <div class="pnum">PRACTICAL // 04</div>
+      <div class="pico">💳</div>
+      <div class="ptitle">Transactions & ACID Properties</div>
+      <div class="pdesc">Simulate COMMIT and ROLLBACK on a live bank transfer. Explore all four ACID properties interactively.</div>
+      <div class="parr">→</div>
+    </div>
+    <div class="pcard" style="--ca:#38bdf8" onclick="showP(5)">
+      <div class="pnum">PRACTICAL // 05</div>
+      <div class="pico">⚡</div>
+      <div class="ptitle">Indexing & Query Optimization</div>
+      <div class="pdesc">Compare Linear Search vs B-Tree Index search live. See how many comparisons each takes.</div>
+      <div class="parr">→</div>
+    </div>
+    <div class="pcard" style="--ca:#fb923c" onclick="showP(6)">
+      <div class="pnum">PRACTICAL // 06</div>
+      <div class="pico">🧩</div>
+      <div class="ptitle">ER Model & SQL Joins</div>
+      <div class="pdesc">Design an ER diagram and simulate INNER, LEFT, RIGHT, FULL OUTER JOINs with live result tables.</div>
+      <div class="parr">→</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ P1 — DDL ═══════════════ -->
+<div class="screen" id="s1">
+<div class="ppage" style="--aa:#00d4aa">
+  <div class="phdr">
+    <div class="pnum">PRACTICAL // 01</div>
+    <h2>DDL Commands & Schema Design</h2>
+    <div class="aim"><strong>Aim:</strong> To understand and apply Data Definition Language (DDL) commands — CREATE, ALTER, DROP, TRUNCATE — for designing and modifying a database schema with constraints.</div>
+  </div>
+  <div class="tabs">
+    <button class="tab active" onclick="st(1,'th',this)">Theory</button>
+    <button class="tab" onclick="st(1,'sq',this)">SQL Reference</button>
+    <button class="tab" onclick="st(1,'pr',this)">Practical Exercise</button>
+    <button class="tab" onclick="st(1,'qz',this)">Quiz</button>
+  </div>
+
+  <div class="tc active" id="p1-th">
+    <div class="sec">
+      <h3>What is DDL?</h3>
+      <p><strong>Data Definition Language (DDL)</strong> consists of SQL commands that define, modify, or remove the <strong>structure</strong> (schema) of database objects. DDL does not deal with actual data rows — it defines the blueprint of your database.</p>
+    </div>
+    <div class="sec">
+      <h3>Core DDL Commands</h3>
+      <ul>
+        <li><strong>CREATE</strong> — Creates a new database, table, view, or index</li>
+        <li><strong>ALTER</strong> — Modifies an existing table (add / drop / modify columns, add constraints)</li>
+        <li><strong>DROP</strong> — Permanently deletes a table along with all its data and structure</li>
+        <li><strong>TRUNCATE</strong> — Deletes all rows in a table but keeps the table structure</li>
+        <li><strong>RENAME</strong> — Renames a table or column</li>
+      </ul>
+    </div>
+    <div class="sec">
+      <h3>Column Constraints</h3>
+      <ul>
+        <li><strong>PRIMARY KEY</strong> — Uniquely identifies each row; cannot be NULL</li>
+        <li><strong>NOT NULL</strong> — The column must always have a value</li>
+        <li><strong>UNIQUE</strong> — All values in the column must be distinct</li>
+        <li><strong>CHECK</strong> — Value must satisfy a specified condition (e.g., age &gt;= 18)</li>
+        <li><strong>DEFAULT</strong> — A default value is inserted automatically when none is provided</li>
+        <li><strong>FOREIGN KEY</strong> — Links to a PRIMARY KEY in another table to enforce referential integrity</li>
+      </ul>
+    </div>
+    <div class="sec">
+      <h3>Important: DDL vs DML</h3>
+      <p>DDL commands (CREATE, DROP, TRUNCATE) <strong>auto-commit</strong> — changes are permanent immediately and cannot be rolled back. DML commands (INSERT, UPDATE, DELETE) can be wrapped in transactions and rolled back. This distinction is critical for database safety.</p>
+    </div>
+    <div class="sec">
+      <h3>How This Practical Works</h3>
+      <div class="steps-row">
+        <div class="step-box"><div class="step-num">STEP 01</div><div class="step-title">Read Theory</div><div class="step-desc">Understand all DDL commands and constraints above</div></div>
+        <div class="step-box"><div class="step-num">STEP 02</div><div class="step-title">Study SQL Code</div><div class="step-desc">Go to "SQL Reference" tab and read all examples carefully</div></div>
+        <div class="step-box"><div class="step-num">STEP 03</div><div class="step-title">Do Exercises</div><div class="step-desc">Go to "Practical Exercise" tab — type SQL, run, observe output, tick tasks</div></div>
+        <div class="step-box"><div class="step-num">STEP 04</div><div class="step-title">Take Quiz</div><div class="step-desc">Test your understanding with the 4-question quiz</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tc" id="p1-sq">
+    <div class="sec">
+      <h3>CREATE TABLE</h3>
+<pre><span class="cm">-- Create a Students table with various constraints</span>
+<span class="kw">CREATE TABLE</span> <span class="nm">Students</span> (
+    student_id   <span class="ty">INT</span>           <span class="kw">PRIMARY KEY</span>,
+    name         <span class="ty">VARCHAR</span>(50)   <span class="kw">NOT NULL</span>,
+    email        <span class="ty">VARCHAR</span>(100)  <span class="kw">UNIQUE</span>,
+    age          <span class="ty">INT</span>           <span class="kw">CHECK</span>(age &gt;= 16),
+    dept         <span class="ty">VARCHAR</span>(30)   <span class="kw">DEFAULT</span> <span class="str">'CS'</span>,
+    joined_on    <span class="ty">DATE</span>
+);</pre>
+    </div>
+    <div class="sec">
+      <h3>ALTER TABLE</h3>
+<pre><span class="cm">-- Add a new column</span>
+<span class="kw">ALTER TABLE</span> <span class="nm">Students</span> <span class="kw">ADD</span> phone <span class="ty">VARCHAR</span>(15);
+
+<span class="cm">-- Modify a column's data type</span>
+<span class="kw">ALTER TABLE</span> <span class="nm">Students</span> <span class="kw">MODIFY</span> name <span class="ty">VARCHAR</span>(80) <span class="kw">NOT NULL</span>;
+
+<span class="cm">-- Drop a column</span>
+<span class="kw">ALTER TABLE</span> <span class="nm">Students</span> <span class="kw">DROP COLUMN</span> phone;
+
+<span class="cm">-- Add a foreign key constraint</span>
+<span class="kw">ALTER TABLE</span> <span class="nm">Students</span>
+  <span class="kw">ADD CONSTRAINT</span> fk_dept
+  <span class="kw">FOREIGN KEY</span> (dept_id) <span class="kw">REFERENCES</span> <span class="nm">Department</span>(dept_id);</pre>
+    </div>
+    <div class="sec">
+      <h3>DROP vs TRUNCATE</h3>
+<pre><span class="cm">-- DROP: removes table definition + all data (irreversible)</span>
+<span class="kw">DROP TABLE</span> <span class="nm">Students</span>;
+
+<span class="cm">-- TRUNCATE: removes all rows, keeps table structure</span>
+<span class="kw">TRUNCATE TABLE</span> <span class="nm">Students</span>;
+
+<span class="cm">-- Difference at a glance:</span>
+<span class="cm">-- DROP TABLE  → table no longer exists</span>
+<span class="cm">-- TRUNCATE    → empty table still exists</span>
+<span class="cm">-- DELETE      → removes rows (can use WHERE), is DML</span></pre>
+    </div>
+  </div>
+
+  <div class="tc" id="p1-pr">
+    <div class="sec">
+      <h3>How to Perform This Practical</h3>
+      <p>The <strong>SQL Editor below is your lab workbench</strong>. Type any DDL command and click <strong>▶ RUN</strong> to execute it. The output panel shows success messages, errors, or table listings. Follow the task checklist from top to bottom.</p>
+      <div class="hint"><strong>💡 Supported commands:</strong> <code>CREATE TABLE Name (col TYPE, ...)</code> &nbsp;|&nbsp; <code>ALTER TABLE Name ADD col TYPE</code> &nbsp;|&nbsp; <code>ALTER TABLE Name DROP COLUMN col</code> &nbsp;|&nbsp; <code>DROP TABLE Name</code> &nbsp;|&nbsp; <code>TRUNCATE TABLE Name</code> &nbsp;|&nbsp; <code>SHOW TABLES</code></div>
+    </div>
+    <div class="sec">
+      <h3>Task Checklist — Complete All 6 Tasks</h3>
+      <div class="tasklist">
+        <label class="task"><input type="checkbox" onchange="chk(this)"><span><strong>Task 1:</strong> Create a table named <code>Students</code> with columns: <code>id INT PRIMARY KEY</code>, <code>name VARCHAR(50) NOT NULL</code>, <code>age INT</code>, <code>dept VARCHAR(30) DEFAULT 'CS'</code></span></label>
+        <label class="task"><input type="checkbox" onchange="chk(this)"><span><strong>Task 2:</strong> Type <code>SHOW TABLES</code> and run it — verify that Students table appears in the output</span></label>
+        <label class="task"><input type="checkbox" onchange="chk(this)"><span><strong>Task 3:</strong> Add a new column <code>email VARCHAR(100)</code> to Students using <code>ALTER TABLE Students ADD email VARCHAR(100)</code></span></label>
+        <label class="task"><input type="checkbox" onchange="chk(this)"><span><strong>Task 4:</strong> Remove the <code>email</code> column using <code>ALTER TABLE Students DROP COLUMN email</code> — run SHOW TABLES to confirm</span></label>
+        <label class="task"><input type="checkbox" onchange="chk(this)"><span><strong>Task 5:</strong> Create a second table <code>Department</code> with columns: <code>dept_id INT PRIMARY KEY</code>, <code>dept_name VARCHAR(50) NOT NULL</code></span></label>
+        <label class="task"><input type="checkbox" onchange="chk(this)"><span><strong>Task 6:</strong> Drop the <code>Department</code> table using <code>DROP TABLE Department</code> — run SHOW TABLES to confirm it is removed</span></label>
+      </div>
+    </div>
+    <div class="sec">
+      <h3>SQL Editor</h3>
+      <div class="ex-wrap">
+        <div class="ex-bar">
+          <div class="ex-dot" style="background:#ff5f57"></div>
+          <div class="ex-dot" style="background:#febc2e"></div>
+          <div class="ex-dot" style="background:#28c840"></div>
+          <span style="margin-left:8px">DDL Simulator — Your personal SQL workbench</span>
+        </div>
+        <div class="ex-body">
+          <div class="sql-row">
+            <textarea class="sqlin" id="ddlIn" placeholder="Type your SQL here and click RUN&#10;&#10;Example:&#10;CREATE TABLE Students (id INT PRIMARY KEY, name VARCHAR(50) NOT NULL, age INT, dept VARCHAR(30) DEFAULT 'CS')"></textarea>
+            <div style="display:flex;flex-direction:column;gap:6px">
+              <button class="btn-run" onclick="runDDL()">▶ RUN</button>
+              <button class="btn-sec" onclick="document.getElementById('ddlIn').value='';document.getElementById('ddlLog').innerHTML='<span class=neu>// Editor cleared.</span>'">✕ Clear</button>
+            </div>
+          </div>
+          <div class="outlog" id="ddlLog"><span class="neu">// Output appears here. Start with Task 1 above.</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tc" id="p1-qz">
+    <div class="sec"><h3>Quiz — DDL Commands</h3><div id="q1"></div></div>
+  </div>
+</div>
+</div>
+
+<!-- ═══════════════ P2 — DML ═══════════════ -->
+<div class="screen" id="s2">
+<div class="ppage" style="--aa:#ffd166">
+  <div class="phdr">
+    <div class="pnum">PRACTICAL // 02</div>
+    <h2>DML Commands & SQL Queries</h2>
+    <div class="aim"><strong>Aim:</strong> To learn and practice Data Manipulation Language (DML) commands — INSERT, UPDATE, DELETE, SELECT — and advanced clauses (WHERE, GROUP BY, HAVING, ORDER BY) on a live database table.</div>
+  </div>
+  <div class="tabs">
+    <button class="tab active" onclick="st(2,'th',this)">Theory</button>
+    <button class="tab" onclick="st(2,'sq',this)">SQL Reference</button>
+    <button class="tab" onclick="st(2,'pr',this)">Practical Exercise</button>
+    <button class="tab" onclick="st(2,'qz',this)">Quiz</button>
+  </div>
+
+  <div class="tc active" id="p2-th">
+    <div class="sec">
+      <h3>What is DML?</h3>
+      <p><strong>Data Manipulation Language (DML)</strong> commands operate on the <strong>actual data rows</strong> inside tables. Unlike DDL, DML operations can be wrapped inside transactions and rolled back if needed.</p>
+    </div>
+    <div class="sec">
+      <h3>Core DML Commands</h3>
+      <ul>
+        <li><strong>INSERT</strong> — Adds one or more new rows to a table</li>
+        <li><strong>UPDATE</strong> — Modifies values in existing rows (always use WHERE or all rows change!)</li>
+        <li><strong>DELETE</strong> — Removes rows from a table (always use WHERE or all rows are deleted!)</li>
+        <li><strong>SELECT</strong> — Retrieves data from one or more tables (technically DQL, but covered here)</li>
+      </ul>
+    </div>
+    <div class="sec">
+      <h3>SELECT Clauses</h3>
+      <ul>
+        <li><strong>WHERE</strong> — Filter rows before any grouping (e.g., <code>WHERE age &gt; 20</code>)</li>
+        <li><strong>ORDER BY</strong> — Sort results ascending (ASC) or descending (DESC)</li>
+        <li><strong>GROUP BY</strong> — Collapse rows sharing the same column value into groups</li>
+        <li><strong>HAVING</strong> — Filter groups after GROUP BY (like WHERE but for groups)</li>
+        <li><strong>DISTINCT</strong> — Eliminate duplicate result rows</li>
+        <li><strong>LIMIT</strong> — Return only the first N rows</li>
+        <li><strong>Aggregate functions:</strong> COUNT(), SUM(), AVG(), MAX(), MIN()</li>
+      </ul>
+    </div>
+    <div class="sec">
+      <h3>How This Practical Works</h3>
+      <p>A <strong>Students table with 4 preloaded rows</strong> is ready in the Practical Exercise tab. You interact with it using simple commands listed there. Every command updates the displayed table in real time so you can see exactly what changed.</p>
+    </div>
+  </div>
+
+  <div class="tc" id="p2-sq">
+    <div class="sec">
+      <h3>INSERT</h3>
+<pre><span class="cm">-- Insert a single row</span>
+<span class="kw">INSERT INTO</span> <span class="nm">Students</span> (student_id, name, age, dept)
+<span class="kw">VALUES</span> (1, <span class="str">'Alice'</span>, 20, <span class="str">'CS'</span>);
+
+<span class="cm">-- Insert multiple rows at once</span>
+<span class="kw">INSERT INTO</span> <span class="nm">Students</span> <span class="kw">VALUES</span>
+  (2, <span class="str">'Bob'</span>,   19, <span class="str">'IT'</span>),
+  (3, <span class="str">'Carol'</span>, 21, <span class="str">'CS'</span>),
+  (4, <span class="str">'David'</span>, 22, <span class="str">'ECE'</span>);</pre>
+    </div>
+    <div class="sec">
+      <h3>SELECT with Clauses</h3>
+<pre><span class="cm">-- Get all rows and columns</span>
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> <span class="nm">Students</span>;
+
+<span class="cm">-- Filter by condition and sort</span>
+<span class="kw">SELECT</span> name, age <span class="kw">FROM</span> <span class="nm">Students</span>
+<span class="kw">WHERE</span> dept = <span class="str">'CS'</span> <span class="kw">AND</span> age &gt;= 20
+<span class="kw">ORDER BY</span> age <span class="kw">DESC</span>;
+
+<span class="cm">-- Count students per department</span>
+<span class="kw">SELECT</span> dept, <span class="fn">COUNT</span>(*) <span class="kw">AS</span> total
+<span class="kw">FROM</span> <span class="nm">Students</span>
+<span class="kw">GROUP BY</span> dept
+<span class="kw">HAVING</span> <span class="fn">COUNT</span>(*) &gt; 1
+<span class="kw">ORDER BY</span> total <span class="kw">DESC</span>;</pre>
+    </div>
+    <div class="sec">
+      <h3>UPDATE & DELETE</h3>
+<pre><span class="cm">-- Update a specific row (always use WHERE!)</span>
+<span class="kw">UPDATE</span> <span class="nm">Students</span>
+<span class="kw">SET</span> dept = <span class="str">'ECE'</span>, age = 23
+<span class="kw">WHERE</span> student_id = 2;
+
+<span class="cm">-- Delete rows matching a condition</span>
+<span class="kw">DELETE FROM</span> <span class="nm">Students</span>
+<span class="kw">WHERE</span> dept = <span class="str">'ECE'</span>;</pre>
+    </div>
+  </div>
+
+  <div class="tc" id="p2-pr">
+    <div class="sec">
+      <h3>How to Perform This Practical</h3>
+      <p>A live <strong>Students table</strong> is preloaded with 4 rows. Type commands in the editor below and click <strong>▶ RUN</strong> to see results. The table updates in real time. Use <strong>↺ Reset</strong> to restore original data.</p>
+      <div class="hint"><strong>💡 Command shortcuts for this simulator:</strong><br>
+        <code>SELECT ALL</code> — show all rows &nbsp;|&nbsp; <code>SELECT CS</code> — filter by dept &nbsp;|&nbsp; <code>COUNT</code> — count per dept<br>
+        <code>INSERT Name Age Dept</code> — add a row &nbsp;|&nbsp; <code>DELETE id</code> — remove by ID &nbsp;|&nbsp; <code>UPDATE id col=value</code> — edit a row
+      </div>
+    </div>
+    <div class="sec">
+      <h3>Task Checklist — Complete All 6 Tasks</h3>
+      <div class="tasklist">
+        <label class="task"><input type="checkbox" onchange="chk(this)"><span><strong>Task 1:</strong> Run <code>SELECT ALL</code> — observe all 4 students (Alice, Bob, Carol, David) in the table</span></label>
+        <label class="task"><input type="checkbox" onchange="chk(this)"><span><strong>Task 2:</strong> Insert yourself: type <code>INSERT YourName YourAge YourDept</code> (e.g., <code>INSERT Rahul 20 IT</code>) and run it</span></label>
+        <label class="task"><input type="checkbox" onchange="chk(this)"><span><strong>Task 3:</strong> Update Bob's department: type <code>UPDATE 2 dept=ECE</code> — then run SELECT ALL to confirm the change</span></label>
+        <label class="task"><input type="checkbox" onchange="chk(this)"><span><strong>Task 4:</strong> Delete David (id=4): type <code>DELETE 4</code> — confirm he is removed with SELECT ALL</span></label>
+        <label class="task"><input type="checkbox" onchange="chk(this)"><span><strong>Task 5:</strong> Filter CS students: type <code>SELECT CS</code> — only CS department students should appear</span></label>
+        <label class="task"><input type="checkbox" onchange="chk(this)"><span><strong>Task 6:</strong> Run <code>COUNT</code> — see a department-wise count table (like GROUP BY dept)</span></label>
+      </div>
+    </div>
+    <div class="sec">
+      <h3>Live Students Table Simulator</h3>
+      <div class="ex-wrap">
+        <div class="ex-bar">
+          <div class="ex-dot" style="background:#ff5f57"></div>
+          <div class="ex-dot" style="background:#febc2e"></div>
+          <div class="ex-dot" style="background:#28c840"></div>
+          <span style="margin-left:8px">Students Table — 4 rows preloaded, live editing enabled</span>
+        </div>
+        <div class="ex-body">
+          <div class="sql-row">
+            <textarea class="sqlin" id="dmlIn" placeholder="Type command here and click RUN&#10;&#10;Examples:&#10;SELECT ALL&#10;INSERT Priya 19 CS&#10;UPDATE 1 dept=IT&#10;DELETE 3&#10;COUNT"></textarea>
+            <div style="display:flex;flex-direction:column;gap:6px">
+              <button class="btn-run" onclick="runDML()">▶ RUN</button>
+              <button class="btn-sec" onclick="resetDML()">↺ Reset</button>
+            </div>
+          </div>
+          <div class="res" id="dmlRes"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tc" id="p2-qz">
+    <div class="sec"><h3>Quiz — DML & SQL</h3><div id="q2"></div></div>
+  </div>
+</div>
+</div>
+
+<!-- ═══════════════ P3 — NORMALIZATION ═══════════════ -->
+<div class="screen" id="s3">
+<div class="ppage" style="--aa:#ff6b6b">
+  <div class="phdr">
+    <div class="pnum">PRACTICAL // 03</div>
+    <h2>Normalization (1NF → 3NF)</h2>
+    <div class="aim"><strong>Aim:</strong> To understand database normalization — transforming an unnormalized relation through 1NF, 2NF, and 3NF by identifying and eliminating functional dependencies, partial dependencies, and transitive dependencies.</div>
+  </div>
+  <div class="tabs">
+    <button class="tab active" onclick="st(3,'th',this)">Theory</button>
+    <button class="tab" onclick="st(3,'demo',this)">Step-by-Step Demo</button>
+    <button class="tab" onclick="st(3,'pr',this)">Practical Exercise</button>
+    <button class="tab" onclick="st(3,'qz',this)">Quiz</button>
+  </div>
+
+  <div class="tc active" id="p3-th">
+    <div class="sec">
+      <h3>What is Normalization?</h3>
+      <p>Normalization is the process of organizing a database to reduce <strong>data redundancy</strong> and prevent <strong>anomalies</strong>. It restructures large tables into smaller, well-organized related tables using a series of rules called Normal Forms.</p>
+    </div>
+    <div class="sec">
+      <h3>The Three Anomalies (Problems Without Normalization)</h3>
+      <ul>
+        <li><strong>Insertion Anomaly:</strong> Cannot add a new record without supplying unrelated data</li>
+        <li><strong>Update Anomaly:</strong> Changing one value requires updating multiple rows — inconsistency risk</li>
+        <li><strong>Deletion Anomaly:</strong> Deleting one row accidentally removes other important information</li>
+      </ul>
+    </div>
+    <div class="sec">
+      <h3>Normal Forms — Quick Reference</h3>
+      <ul>
+        <li><strong>UNF (Unnormalized):</strong> Raw data — multi-valued cells, no clear primary key</li>
+        <li><strong>1NF:</strong> Every cell is atomic (one value only); a primary key is defined</li>
+        <li><strong>2NF:</strong> 1NF + no partial dependency (non-key attributes must depend on the full composite key, not just part of it)</li>
+        <li><strong>3NF:</strong> 2NF + no transitive dependency (non-key attributes must depend only on the primary key, not on other non-key attributes)</li>
+      </ul>
+    </div>
+    <div class="sec">
+      <h3>Functional Dependency (FD)</h3>
+      <p>Written as <strong>A → B</strong> ("A determines B"). If you know the value of A, you can always find exactly one value of B. Example: <code>student_id → student_name</code>. The Determinant (A) functionally determines the Dependent (B).</p>
+    </div>
+    <div class="sec">
+      <h3>How This Practical Works</h3>
+      <p>Go to the <strong>"Step-by-Step Demo"</strong> tab to visually watch a table transform from UNF → 1NF → 2NF → 3NF. Then go to <strong>"Practical Exercise"</strong> where you will identify dependencies in a given table and write the normalized CREATE TABLE statements yourself.</p>
+    </div>
+  </div>
+
+  <div class="tc" id="p3-demo">
+    <div class="sec">
+      <h3>Click Each Stage to See the Transformation</h3>
+      <div class="norm-btns">
+        <button class="nbtn active" onclick="showNorm('unf',this)">UNF (Raw Data)</button>
+        <button class="nbtn" onclick="showNorm('1nf',this)">→ 1NF</button>
+        <button class="nbtn" onclick="showNorm('2nf',this)">→ 2NF</button>
+        <button class="nbtn" onclick="showNorm('3nf',this)">→ 3NF ✅</button>
+      </div>
+      <div id="normDisp"></div>
+    </div>
+  </div>
+
+  <div class="tc" id="p3-pr">
+    <div class="sec">
+      <h3>How to Perform This Practical</h3>
+      <p>Analyze the unnormalized <strong>OrderDetails</strong> table below. Follow the tasks to identify problems and write normalized SQL CREATE TABLE statements in the editor.</p>
+    </div>
+    <div class="sec">
+      <h3>Given: Unnormalized OrderDetails Table</h3>
+      <div class="ntbl">
+        <table>
+          <thead><tr><th>OrderID</th><th>CustomerName</th><th>CustomerCity</th><th>ProductIDs</th><th>ProductNames</th><th>Quantities</th></tr></thead>
+          <tbody>
+            <tr><td>1001</td><td>Alice</td><td>Delhi</td><td class="bad">P1, P2</td><td class="bad">Pen, Pencil</td><td class="bad">2, 5</td></tr>
+            <tr><td>1002</td><td>Bob</td><td>Mumbai</td><td class="bad">P2, P3</td><td class="bad">Pencil, Ruler</td><td class="bad">1, 3</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div style="margin-top:10px;font-size:.8rem;color:var(--accent2)">⚠ Red cells contain multiple values — this violates 1NF atomicity rule.</div>
+    </div>
+    <div class="sec">
+      <h3>Task Checklist — Complete All 6 Tasks</h3>
+      <div class="tasklist">
+        <label class="task"><input type="checkbox" onchange="chk(this)"><span><strong>Task 1:</strong> Identify which 3 columns violate 1NF (contain multi-values) — write them in your notebook</span></label>
+        <label class="task"><input type="checkbox" onchange="chk(this)"><span><strong>Task 2:</strong> Click the "Step-by-Step Demo" tab → click "→ 1NF" button — study how rows are split to make cells atomic</span></label>
+        <label class="task"><input type="checkbox" onchange="chk(this)"><span><strong>Task 3:</strong> In the editor below, write <code>CREATE TABLE Orders_1NF</code> with columns: OrderID, CustomerName, CustomerCity, ProductID, ProductName, Qty. Set composite PK (OrderID, ProductID).</span></label>
+        <label class="task"><input type="checkbox" onchange="chk(this)"><span><strong>Task 4:</strong> Click "→ 2NF" in the demo — study how CustomerName/CustomerCity (partial deps) are moved to a separate Orders table</span></label>
+        <label class="task"><input type="checkbox" onchange="chk(this)"><span><strong>Task 5:</strong> Write CREATE TABLE for <code>Orders</code> (OrderID PK, CustomerName, CustomerCity) and <code>OrderItems</code> (OrderID FK, ProductID, ProductName, Qty)</span></label>
+        <label class="task"><input type="checkbox" onchange="chk(this)"><span><strong>Task 6:</strong> Click "→ 3NF" in the demo — study how CustomerCity (transitive dep via CustomerName) is separated into a Customers table. Write all 3 final CREATE TABLE statements.</span></label>
+      </div>
+    </div>
+    <div class="sec">
+      <h3>SQL Editor — Write Your Normalized Tables</h3>
+      <div class="ex-wrap">
+        <div class="ex-bar">
+          <div class="ex-dot" style="background:#ff5f57"></div>
+          <div class="ex-dot" style="background:#febc2e"></div>
+          <div class="ex-dot" style="background:#28c840"></div>
+          <span style="margin-left:8px">DDL Editor — Write your normalized CREATE TABLE statements</span>
+        </div>
+        <div class="ex-body">
+          <div class="sql-row">
+            <textarea class="sqlin" id="normIn" placeholder="Write your normalized table definitions here&#10;&#10;Example (start with 1NF):&#10;CREATE TABLE Orders_1NF (order_id INT, customer_name VARCHAR(50), customer_city VARCHAR(50), product_id VARCHAR(10), product_name VARCHAR(50), qty INT)&#10;&#10;Then write 2NF tables, then 3NF tables..."></textarea>
+            <div style="display:flex;flex-direction:column;gap:6px">
+              <button class="btn-run" onclick="runNormSQL()">▶ RUN</button>
+              <button class="btn-sec" onclick="document.getElementById('normIn').value='';document.getElementById('normLog').innerHTML='<span class=neu>// Cleared.</span>'">✕ Clear</button>
+            </div>
+          </div>
+          <div class="outlog" id="normLog"><span class="neu">// Your CREATE TABLE output appears here. Type and click RUN. Use SHOW TABLES to verify.</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tc" id="p3-qz">
+    <div class="sec"><h3>Quiz — Normalization</h3><div id="q3"></div></div>
+  </div>
+</div>
+</div>
+
+<!-- ═══════════════ P4 — TRANSACTIONS ═══════════════ -->
+<div class="screen" id="s4">
+<div class="ppage" style="--aa:#a78bfa">
+  <div class="phdr">
+    <div class="pnum">PRACTICAL // 04</div>
+    <h2>Transactions & ACID Properties</h2>
+    <div class="aim"><strong>Aim:</strong> To understand database transactions, implement COMMIT and ROLLBACK commands, and demonstrate all four ACID properties (Atomicity, Consistency, Isolation, Durability) through an interactive bank transfer simulation.</div>
+  </div>
+  <div class="tabs">
+    <button class="tab active" onclick="st(4,'th',this)">Theory</button>
+    <button class="tab" onclick="st(4,'acid',this)">ACID Explorer</button>
+    <button class="tab" onclick="st(4,'pr',this)">Practical Exercise</button>
+    <button class="tab" onclick="st(4,'qz',this)">Quiz</button>
+  </div>
+
+  <div class="tc active" id="p4-th">
+    <div class="sec">
+      <h3>What is a Transaction?</h3>
+      <p>A transaction is a <strong>logical unit of work</strong> made up of one or more SQL operations that must be treated as a single whole. Either all operations succeed (<strong>COMMIT</strong>), or all are undone (<strong>ROLLBACK</strong>). Classic example: transferring money between bank accounts requires two UPDATEs — both must succeed or neither should.</p>
+    </div>
+    <div class="sec">
+      <h3>Transaction Control Commands</h3>
+      <ul>
+        <li><strong>BEGIN / START TRANSACTION</strong> — Marks the start of a new transaction</li>
+        <li><strong>COMMIT</strong> — Permanently saves all changes made in the current transaction to disk</li>
+        <li><strong>ROLLBACK</strong> — Undoes all changes since the last COMMIT or BEGIN</li>
+        <li><strong>SAVEPOINT name</strong> — Creates a named intermediate checkpoint within a transaction</li>
+        <li><strong>ROLLBACK TO name</strong> — Rolls back only to the specified SAVEPOINT (partial undo)</li>
+        <li><strong>RELEASE SAVEPOINT name</strong> — Removes a savepoint (keeps the changes)</li>
+      </ul>
+    </div>
+    <div class="sec">
+      <h3>ACID Properties</h3>
+      <ul>
+        <li><strong>Atomicity:</strong> All operations succeed or none do — the transaction is indivisible</li>
+        <li><strong>Consistency:</strong> The database moves from one valid state to another — no constraints are violated</li>
+        <li><strong>Isolation:</strong> Concurrent transactions do not see each other's intermediate uncommitted changes</li>
+        <li><strong>Durability:</strong> After COMMIT, data is permanently written to disk — survives crashes</li>
+      </ul>
+    </div>
+    <div class="sec">
+      <h3>How This Practical Works</h3>
+      <p>Go to the <strong>"ACID Explorer"</strong> tab and click each card to understand all four properties. Then go to <strong>"Practical Exercise"</strong> — use the bank transfer simulator to COMMIT or ROLLBACK a real transaction and observe what happens to the account balances.</p>
+    </div>
+  </div>
+
+  <div class="tc" id="p4-acid">
+    <div class="sec">
+      <h3>ACID Properties — Click Each Card to Expand</h3>
+      <div class="acid-grid">
+        <div class="acid-card" onclick="this.classList.toggle('on')">
+          <div class="acid-letter">A</div>
+          <div class="acid-name">Atomicity</div>
+          <div class="acid-desc">Bank transfer: ₹1000 leaves Account A AND arrives in Account B — or neither update happens. You cannot have half a transaction. If the system fails between the two steps, ROLLBACK restores both accounts to their original values.</div>
+        </div>
+        <div class="acid-card" onclick="this.classList.toggle('on')">
+          <div class="acid-letter">C</div>
+          <div class="acid-name">Consistency</div>
+          <div class="acid-desc">Before and after every transaction, all database rules — NOT NULL, FOREIGN KEY, CHECK constraints, triggers — must be satisfied. A transaction that would leave the database in an invalid state is automatically aborted.</div>
+        </div>
+        <div class="acid-card" onclick="this.classList.toggle('on')">
+          <div class="acid-letter">I</div>
+          <div class="acid-name">Isolation</div>
+          <div class="acid-desc">Two simultaneous transactions cannot see each other's uncommitted intermediate state. Isolation levels (READ UNCOMMITTED → SERIALIZABLE) control how strictly this is enforced. This prevents dirty reads, non-repeatable reads, and phantom reads.</div>
+        </div>
+        <div class="acid-card" onclick="this.classList.toggle('on')">
+          <div class="acid-letter">D</div>
+          <div class="acid-name">Durability</div>
+          <div class="acid-desc">Once a transaction is committed, its effects are permanent — even if the server crashes immediately after. The database engine uses a Write-Ahead Log (WAL) to replay all committed transactions on recovery, ensuring no committed data is ever lost.</div>
+        </div>
+      </div>
+    </div>
+    <div class="sec">
+      <h3>Transaction SQL Reference</h3>
+<pre><span class="kw">START TRANSACTION</span>;
+  <span class="kw">UPDATE</span> <span class="nm">Account</span> <span class="kw">SET</span> balance = balance - 1000 <span class="kw">WHERE</span> id = <span class="str">'A'</span>;
+  <span class="kw">SAVEPOINT</span> after_debit;
+  <span class="kw">UPDATE</span> <span class="nm">Account</span> <span class="kw">SET</span> balance = balance + 1000 <span class="kw">WHERE</span> id = <span class="str">'B'</span>;
+
+  <span class="cm">-- If credit fails, undo only the credit step:</span>
+  <span class="kw">ROLLBACK TO</span> after_debit;
+
+  <span class="cm">-- OR save everything permanently:</span>
+<span class="kw">COMMIT</span>;</pre>
+    </div>
+  </div>
+
+  <div class="tc" id="p4-pr">
+    <div class="sec">
+      <h3>How to Perform This Practical</h3>
+      <p>Use the <strong>Bank Transfer Transaction Simulator</strong> below. Click <strong>▶ Start Transaction</strong> to begin. Watch each SQL step execute in sequence. Then choose to <strong>COMMIT</strong> (save permanently) or <strong>ROLLBACK</strong> (undo everything). Repeat both scenarios and complete the checklist.</p>
+    </div>
+    <div class="sec">
+      <h3>Bank Transfer — Live Transaction Simulator</h3>
+      <p style="font-size:.81rem;color:var(--muted);margin-bottom:12px">Transferring ₹1,000 from Account A → Account B. You control the outcome.</p>
+      <div style="display:flex;gap:14px;flex-wrap:wrap;margin:12px 0 16px">
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 22px;text-align:center;flex:1;min-width:110px">
+          <div style="color:var(--muted);font-family:var(--mono);font-size:.65rem;margin-bottom:4px">ACCOUNT A</div>
+          <div id="accA" style="font-size:1.7rem;font-weight:800;color:#a78bfa;font-family:var(--mono)">₹5,000</div>
+        </div>
+        <div style="display:flex;align-items:center;color:var(--muted);font-size:1.3rem;padding:0 4px">→</div>
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 22px;text-align:center;flex:1;min-width:110px">
+          <div style="color:var(--muted);font-family:var(--mono);font-size:.65rem;margin-bottom:4px">ACCOUNT B</div>
+          <div id="accB" style="font-size:1.7rem;font-weight:800;color:#a78bfa;font-family:var(--mono)">₹3,000</div>
+        </div>
+      </div>
+      <div class="txn-steps">
+        <div class="txstep" id="ts1"><span>🔵</span><span>BEGIN TRANSACTION</span></div>
+        <div class="txstep" id="ts2"><span>💳</span><span>UPDATE Account SET balance = balance - 1000 WHERE id = 'A'</span></div>
+        <div class="txstep" id="ts3"><span>💰</span><span>UPDATE Account SET balance = balance + 1000 WHERE id = 'B'</span></div>
+        <div class="txstep" id="ts4"><span>❓</span><span>Waiting: COMMIT or ROLLBACK?</span></div>
+      </div>
+      <div class="txbtn-row">
+        <button class="txbtn txcom" id="startBtn" onclick="txn('start')">▶ Start Transaction</button>
+        <button class="txbtn txcom" id="comBtn" style="display:none" onclick="txn('commit')">✅ COMMIT</button>
+        <button class="txbtn txrb"  id="rbBtn"  style="display:none" onclick="txn('rollback')">↩ ROLLBACK</button>
+        <button class="txbtn txrst" id="rstBtn" style="display:none" onclick="txn('reset')">🔄 Reset</button>
+      </div>
+      <div id="txMsg" style="margin-top:11px;font-family:var(--mono);font-size:.78rem;color:var(--muted)"></div>
+    </div>
+    <div class="sec">
+      <h3>Task Checklist — Complete All 5 Tasks</h3>
+      <div class="tasklist">
+        <label class="task"><input type="checkbox" onchange="chk(this)"><span><strong>Task 1:</strong> Click "Start Transaction" — watch all 4 steps highlight in sequence. Observe both accounts show pending values.</span></label>
+        <label class="task"><input type="checkbox" onchange="chk(this)"><span><strong>Task 2:</strong> Click <strong>COMMIT</strong> — confirm Account A decreases to ₹4,000 and Account B increases to ₹4,000 permanently. This demonstrates <em>Atomicity + Durability</em>.</span></label>
+        <label class="task"><input type="checkbox" onchange="chk(this)"><span><strong>Task 3:</strong> Click Reset, then Start again — this time click <strong>ROLLBACK</strong>. Confirm both accounts return to their original values. This demonstrates <em>Atomicity</em> (all-or-nothing).</span></label>
+        <label class="task"><input type="checkbox" onchange="chk(this)"><span><strong>Task 4:</strong> Go to "ACID Explorer" tab — click all four ACID cards (A, C, I, D) and read each description thoroughly.</span></label>
+        <label class="task"><input type="checkbox" onchange="chk(this)"><span><strong>Task 5:</strong> Write in your notebook: a full transaction SQL example using START TRANSACTION, SAVEPOINT, ROLLBACK TO SAVEPOINT, and COMMIT for a bank transfer scenario.</span></label>
+      </div>
+    </div>
+  </div>
+
+  <div class="tc" id="p4-qz">
+    <div class="sec"><h3>Quiz — Transactions & ACID</h3><div id="q4"></div></div>
+  </div>
+</div>
+</div>
+
+<!-- ═══════════════ P5 — INDEXING ═══════════════ -->
+<div class="screen" id="s5">
+<div class="ppage" style="--aa:#38bdf8">
+  <div class="phdr">
+    <div class="pnum">PRACTICAL // 05</div>
+    <h2>Indexing & Query Optimization</h2>
+    <div class="aim"><strong>Aim:</strong> To understand database indexing — how indexes are structured (B-Tree), how they accelerate queries, the different types of indexes, and when they should or should not be used.</div>
+  </div>
+  <div class="tabs">
+    <button class="tab active" onclick="st(5,'th',this)">Theory</button>
+    <button class="tab" onclick="st(5,'sq',this)">SQL Reference</button>
+    <button class="tab" onclick="st(5,'pr',this)">Practical Exercise</button>
+    <button class="tab" onclick="st(5,'qz',this)">Quiz</button>
+  </div>
+
+  <div class="tc active" id="p5-th">
+    <div class="sec">
+      <h3>What is a Database Index?</h3>
+      <p>An index is a <strong>separate data structure</strong> that stores column values in sorted order with pointers to the original table rows. It works like the index at the back of a textbook — instead of scanning every page, you jump directly to the right location. Without an index, the database must scan every row (O(n)). With a B-Tree index, search is O(log n).</p>
+    </div>
+    <div class="sec">
+      <h3>Types of Indexes</h3>
+      <ul>
+        <li><strong>Primary Index:</strong> Automatically created on the PRIMARY KEY column</li>
+        <li><strong>Secondary / Non-Clustered Index:</strong> Manually created on any column; index and data are stored separately</li>
+        <li><strong>Clustered Index:</strong> Table rows are physically sorted in the order of this index (only one per table)</li>
+        <li><strong>Unique Index:</strong> Ensures all indexed values are distinct — also acts as a constraint</li>
+        <li><strong>Composite Index:</strong> Built on two or more columns together — useful for multi-column WHERE clauses</li>
+        <li><strong>Full-Text Index:</strong> Optimized for text searches using MATCH / AGAINST</li>
+      </ul>
+    </div>
+    <div class="sec">
+      <h3>Advantages vs. Trade-offs</h3>
+      <ul>
+        <li>✅ Massively speeds up SELECT, WHERE, JOIN, ORDER BY operations</li>
+        <li>✅ Can enforce UNIQUE constraints automatically</li>
+        <li>❌ Slows INSERT, UPDATE, DELETE (the index must also be updated)</li>
+        <li>❌ Consumes additional disk space</li>
+        <li>❌ Low-cardinality columns (e.g., gender with only M/F) benefit little from indexing</li>
+      </ul>
+    </div>
+    <div class="sec">
+      <h3>B-Tree: How Index Search Works</h3>
+      <p>A B-Tree (Balanced Tree) keeps all values sorted. Searching follows the path: <strong>Root → Intermediate Nodes → Leaf Node → Row Pointer</strong>. For a table with 1,000,000 rows, a linear scan may take 1,000,000 comparisons. A B-Tree index takes only about <strong>20 comparisons</strong> (log₂ 1,000,000 ≈ 20).</p>
+    </div>
+  </div>
+
+  <div class="tc" id="p5-sq">
+    <div class="sec">
+      <h3>Create & Drop Indexes</h3>
+<pre><span class="cm">-- Basic index on a frequently searched column</span>
+<span class="kw">CREATE INDEX</span> idx_name <span class="kw">ON</span> <span class="nm">Students</span> (name);
+
+<span class="cm">-- Unique index (also enforces uniqueness)</span>
+<span class="kw">CREATE UNIQUE INDEX</span> idx_email <span class="kw">ON</span> <span class="nm">Students</span> (email);
+
+<span class="cm">-- Composite index (covers queries on both columns)</span>
+<span class="kw">CREATE INDEX</span> idx_dept_age <span class="kw">ON</span> <span class="nm">Students</span> (dept, age);
+
+<span class="cm">-- Remove an index</span>
+<span class="kw">DROP INDEX</span> idx_name <span class="kw">ON</span> <span class="nm">Students</span>;</pre>
+    </div>
+    <div class="sec">
+      <h3>When Index IS and IS NOT Used</h3>
+<pre><span class="cm">-- ✅ Index USED — exact equality on indexed column</span>
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> <span class="nm">Students</span> <span class="kw">WHERE</span> email = <span class="str">'alice@mail.com'</span>;
+
+<span class="cm">-- ✅ Index USED — range query on indexed column</span>
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> <span class="nm">Students</span> <span class="kw">WHERE</span> age <span class="kw">BETWEEN</span> 18 <span class="kw">AND</span> 25;
+
+<span class="cm">-- ❌ Index NOT USED — leading wildcard prevents index scan</span>
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> <span class="nm">Students</span> <span class="kw">WHERE</span> name <span class="kw">LIKE</span> <span class="str">'%lice'</span>;
+
+<span class="cm">-- ❌ Index NOT USED — function on column disables index</span>
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> <span class="nm">Students</span> <span class="kw">WHERE</span> <span class="fn">UPPER</span>(name) = <span class="str">'ALICE'</span>;
+
+<span class="cm">-- Check query execution plan</span>
+<span class="kw">EXPLAIN SELECT</span> * <span class="kw">FROM</span> <span class="nm">Students</span> <span class="kw">WHERE</span> name = <span class="str">'Alice'</span>;</pre>
+    </div>
+  </div>
+
+  <div class="tc" id="p5-pr">
+    <div class="sec">
+      <h3>How to Perform This Practical</h3>
+      <p>The simulator below has <strong>20 student names</strong>. Search for any name and see the difference between <strong>Linear Scan</strong> (no index — checks every row) and <strong>B-Tree Index Search</strong> (binary search — skips most rows). Highlighted rows show which entries were compared.</p>
+    </div>
+    <div class="sec">
+      <h3>Linear Search vs B-Tree Index — Live Comparison</h3>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:13px">
+        <input class="idx-in" id="idxIn" type="text" placeholder="Type a student name to search (e.g. Priya, Zara, Aarav, Rohit)..." oninput="runIdx()">
+        <button class="btn-run" onclick="runIdx()">🔍 Search</button>
+        <button class="btn-sec" onclick="document.getElementById('idxIn').value='';runIdx()">✕</button>
+      </div>
+      <div class="idx-demo">
+        <div class="idx-col">
+          <h4>🔴 LINEAR SCAN (No Index)</h4>
+          <div id="linRows"></div>
+          <div id="linMsg" style="font-family:var(--mono);font-size:.69rem;color:var(--accent2);margin-top:7px"></div>
+        </div>
+        <div class="idx-col">
+          <h4>🟢 B-TREE INDEXED SEARCH</h4>
+          <div id="idxRows"></div>
+          <div id="idxMsg" style="font-family:var(--mono);font-size:.69rem;color:var(--accent);margin-top:7px"></div>
+        </div>
+      </div>
+    </div>
+    <div class="sec">
+      <h3>Task Checklist — Complete All 6 Tasks</h3>
+      <div class="tasklist">
+        <label class="task"><input type="checkbox" onchange="chk(this)"><span><strong>Task 1:</strong> Search for <code>Zara</code> (last in alphabet) — record how many comparisons each method takes. Which is faster?</span></label>
+        <label class="task"><input type="checkbox" onchange="chk(this)"><span><strong>Task 2:</strong> Search for <code>Aarav</code> (first in alphabet) — does the Linear scan still check all rows before finding it? Why?</span></label>
+        <label class="task"><input type="checkbox" onchange="chk(this)"><span><strong>Task 3:</strong> Search for <code>Xyz</code> (not in list) — observe that linear scan checks ALL 20 rows, while B-Tree terminates early.</span></label>
+        <label class="task"><input type="checkbox" onchange="chk(this)"><span><strong>Task 4:</strong> Write the SQL to create an index on the <code>name</code> column of the Students table (see SQL Reference tab).</span></label>
+        <label class="task"><input type="checkbox" onchange="chk(this)"><span><strong>Task 5:</strong> Write an EXPLAIN SELECT query for searching by name — identify the keyword that confirms index usage in the query plan output.</span></label>
+        <label class="task"><input type="checkbox" onchange="chk(this)"><span><strong>Task 6:</strong> In your notebook, list two cases where adding an index would <em>not</em> improve performance and explain why.</span></label>
+      </div>
+    </div>
+  </div>
+
+  <div class="tc" id="p5-qz">
+    <div class="sec"><h3>Quiz — Indexing</h3><div id="q5"></div></div>
+  </div>
+</div>
+</div>
+
+<!-- ═══════════════ P6 — ER + JOINS ═══════════════ -->
+<div class="screen" id="s6">
+<div class="ppage" style="--aa:#fb923c">
+  <div class="phdr">
+    <div class="pnum">PRACTICAL // 06</div>
+    <h2>ER Model & SQL Joins</h2>
+    <div class="aim"><strong>Aim:</strong> To design an Entity-Relationship (ER) diagram for a college database, understand entity relationships and cardinalities, and implement all types of SQL JOINs (INNER, LEFT, RIGHT, FULL OUTER) with live result simulation.</div>
+  </div>
+  <div class="tabs">
+    <button class="tab active" onclick="st(6,'er',this)">ER Diagram</button>
+    <button class="tab" onclick="st(6,'jt',this)">Joins Theory</button>
+    <button class="tab" onclick="st(6,'pr',this)">Practical Exercise</button>
+    <button class="tab" onclick="st(6,'qz',this)">Quiz</button>
+  </div>
+
+  <div class="tc active" id="p6-er">
+    <div class="sec">
+      <h3>College Database — ER Diagram</h3>
+      <p style="color:var(--muted);font-size:.81rem;margin-bottom:14px">🔑 = Primary Key &nbsp;|&nbsp; 🔗 = Foreign Key &nbsp;|&nbsp; Lines show cardinality between entities</p>
+      <div class="er-wrap">
+        <div class="er-box">
+          <div class="er-head">DEPARTMENT</div>
+          <div class="er-row er-pk">🔑 dept_id (PK)</div>
+          <div class="er-row">dept_name</div>
+          <div class="er-row">hod_name</div>
+          <div class="er-row">location</div>
+        </div>
+        <div class="er-rel">── 1 : N ──</div>
+        <div class="er-box">
+          <div class="er-head">STUDENT</div>
+          <div class="er-row er-pk">🔑 student_id (PK)</div>
+          <div class="er-row">name</div>
+          <div class="er-row">email</div>
+          <div class="er-row">age</div>
+          <div class="er-row er-fk">🔗 dept_id (FK)</div>
+        </div>
+        <div class="er-rel">── M : N ──</div>
+        <div class="er-box">
+          <div class="er-head">COURSE</div>
+          <div class="er-row er-pk">🔑 course_id (PK)</div>
+          <div class="er-row">course_name</div>
+          <div class="er-row">credits</div>
+          <div class="er-row er-fk">🔗 dept_id (FK)</div>
+        </div>
+      </div>
+      <div style="margin-top:12px">
+        <div class="er-box" style="display:inline-flex;border-color:#6b7280">
+          <div class="er-head" style="background:#6b7280;color:#fff">ENROLLMENT (Junction Table)</div>
+          <div class="er-row er-fk">🔗 student_id (FK → Student)</div>
+          <div class="er-row er-fk">🔗 course_id  (FK → Course)</div>
+          <div class="er-row">enroll_date</div>
+          <div class="er-row">grade</div>
+        </div>
+      </div>
+    </div>
+    <div class="sec">
+      <h3>Relationship Types Explained</h3>
+      <ul>
+        <li><strong>1:1 (One-to-One):</strong> Each student has exactly one ID card; each ID card belongs to exactly one student</li>
+        <li><strong>1:N (One-to-Many):</strong> One department has many students; each student belongs to only one department</li>
+        <li><strong>M:N (Many-to-Many):</strong> Many students enroll in many courses, and each course has many students — resolved using the ENROLLMENT junction/bridge table</li>
+      </ul>
+    </div>
+    <div class="sec">
+      <h3>ER Diagram Symbols</h3>
+      <ul>
+        <li><strong>Rectangle</strong> — Entity (table)</li>
+        <li><strong>Ellipse / Oval</strong> — Attribute (column)</li>
+        <li><strong>Diamond</strong> — Relationship between entities</li>
+        <li><strong>Underlined attribute</strong> — Primary Key</li>
+        <li><strong>Double ellipse</strong> — Multi-valued attribute</li>
+        <li><strong>Dashed ellipse</strong> — Derived attribute</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="tc" id="p6-jt">
+    <div class="sec">
+      <h3>What is a SQL JOIN?</h3>
+      <p>A JOIN combines rows from two or more tables based on a related column (usually PK = FK). Without JOINs, data split across normalized tables would be impossible to query together efficiently.</p>
+    </div>
+    <div class="sec">
+      <h3>Types of JOINs</h3>
+      <ul>
+        <li><strong>INNER JOIN:</strong> Returns only rows where there is a match in BOTH tables</li>
+        <li><strong>LEFT JOIN:</strong> Returns ALL rows from the left table; NULL fills unmatched right-side columns</li>
+        <li><strong>RIGHT JOIN:</strong> Returns ALL rows from the right table; NULL fills unmatched left-side columns</li>
+        <li><strong>FULL OUTER JOIN:</strong> Returns all rows from both tables; NULL fills both sides where no match</li>
+        <li><strong>CROSS JOIN:</strong> Cartesian product — every row of left × every row of right (no ON condition)</li>
+        <li><strong>SELF JOIN:</strong> A table joined with itself — used for hierarchical data like employee → manager</li>
+      </ul>
+    </div>
+    <div class="sec">
+      <h3>JOIN SQL Syntax</h3>
+<pre><span class="cm">-- INNER JOIN: only students who have a department</span>
+<span class="kw">SELECT</span> s.name, d.dept_name
+<span class="kw">FROM</span> <span class="nm">Students</span> s
+<span class="kw">INNER JOIN</span> <span class="nm">Department</span> d <span class="kw">ON</span> s.dept_id = d.dept_id;
+
+<span class="cm">-- LEFT JOIN: ALL students (NULL if no dept assigned)</span>
+<span class="kw">SELECT</span> s.name, d.dept_name
+<span class="kw">FROM</span> <span class="nm">Students</span> s
+<span class="kw">LEFT JOIN</span> <span class="nm">Department</span> d <span class="kw">ON</span> s.dept_id = d.dept_id;
+
+<span class="cm">-- 3-Table JOIN: student → enrollment → course</span>
+<span class="kw">SELECT</span> s.name, c.course_name, e.grade
+<span class="kw">FROM</span>      <span class="nm">Students</span>   s
+<span class="kw">JOIN</span>      <span class="nm">Enrollment</span> e <span class="kw">ON</span> s.student_id = e.student_id
+<span class="kw">JOIN</span>      <span class="nm">Course</span>     c <span class="kw">ON</span> e.course_id  = c.course_id;</pre>
+    </div>
+  </div>
+
+  <div class="tc" id="p6-pr">
+    <div class="sec">
+      <h3>How to Perform This Practical</h3>
+      <p>Use the <strong>JOIN Simulator</strong> below — select a JOIN type and instantly see the result table generated from the Students and Department tables. Note which rows appear and which become NULL. Then complete all checklist tasks.</p>
+      <div class="hint"><strong>💡 Data used:</strong> Students: Alice (CS), Bob (IT), Carol (CS), Riya (no dept) &nbsp;|&nbsp; Departments: CS (D1), IT (D2), ECE (D3 — no students)</div>
+    </div>
+    <div class="sec">
+      <h3>JOIN Simulator — Students ↔ Department</h3>
+      <div class="norm-btns" id="joinBtns">
+        <button class="nbtn active" onclick="showJoin('inner',this)">INNER JOIN</button>
+        <button class="nbtn" onclick="showJoin('left',this)">LEFT JOIN</button>
+        <button class="nbtn" onclick="showJoin('right',this)">RIGHT JOIN</button>
+        <button class="nbtn" onclick="showJoin('full',this)">FULL OUTER JOIN</button>
+      </div>
+      <div id="joinRes"></div>
+    </div>
+    <div class="sec">
+      <h3>Task Checklist — Complete All 6 Tasks</h3>
+      <div class="tasklist">
+        <label class="task"><input type="checkbox" onchange="chk(this)"><span><strong>Task 1:</strong> Run <strong>INNER JOIN</strong> — confirm "Riya" (no dept) does NOT appear. Explain why in your notebook: INNER JOIN only returns matching rows.</span></label>
+        <label class="task"><input type="checkbox" onchange="chk(this)"><span><strong>Task 2:</strong> Run <strong>LEFT JOIN</strong> — confirm "Riya" now appears with NULL in the Department column. All left table (Students) rows are kept.</span></label>
+        <label class="task"><input type="checkbox" onchange="chk(this)"><span><strong>Task 3:</strong> Run <strong>RIGHT JOIN</strong> — confirm "ECE" department (no students) appears with NULL student columns. All right table (Department) rows are kept.</span></label>
+        <label class="task"><input type="checkbox" onchange="chk(this)"><span><strong>Task 4:</strong> Run <strong>FULL OUTER JOIN</strong> — confirm BOTH "Riya" AND "ECE" appear. All rows from both tables are included.</span></label>
+        <label class="task"><input type="checkbox" onchange="chk(this)"><span><strong>Task 5:</strong> Write SQL for a 3-table JOIN: Students → Enrollment → Course (use the SQL Reference in the "Joins Theory" tab). Write it in your notebook.</span></label>
+        <label class="task"><input type="checkbox" onchange="chk(this)"><span><strong>Task 6:</strong> On paper, draw the ER diagram for Students, Department, Course, and Enrollment — label all PKs, FKs, and cardinalities (1:1, 1:N, M:N).</span></label>
+      </div>
+    </div>
+  </div>
+
+  <div class="tc" id="p6-qz">
+    <div class="sec"><h3>Quiz — ER Model & Joins</h3><div id="q6"></div></div>
+  </div>
+</div>
+</div>
+
+<footer>
+  <strong>Developed by Yash Jain</strong><br>
+</footer>
+
+<script>
+// ── NAVIGATION ──────────────────────────────
+const pNames={1:'P1 – DDL Commands',2:'P2 – DML & SQL',3:'P3 – Normalization',4:'P4 – Transactions',5:'P5 – Indexing',6:'P6 – ER & Joins'};
+function showIndex(){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('s0').classList.add('active');
+  document.getElementById('navBack').style.display='none';
+  document.getElementById('navTitle').textContent='Lab Manual';
+}
+function showP(n){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  const sc=document.getElementById('s'+n);sc.classList.add('active','fade');
+  document.getElementById('navBack').style.display='block';
+  document.getElementById('navTitle').textContent=pNames[n];
+  window.scrollTo(0,0);
+  if(n===2)initDML();
+  if(n===3){showNorm('unf',document.querySelector('#p3-demo .nbtn'));initNSql();}
+  if(n===5)initIdx();
+  if(n===6){showJoin('inner',document.querySelector('#joinBtns .nbtn'));}
+  initQuiz(n);
+}
+function st(p,tab,btn){
+  const pg=document.getElementById('s'+p);
+  pg.querySelectorAll('.tc').forEach(t=>t.classList.remove('active'));
+  pg.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('p'+p+'-'+tab).classList.add('active');
+  btn.classList.add('active');
+  if(p===6&&tab==='pr')showJoin('inner',document.querySelector('#joinBtns .nbtn'));
+}
+function chk(cb){cb.closest('.task').classList.toggle('done',cb.checked);}
+
+// ── DDL ENGINE ───────────────────────────────
+const ddlDB={};
+function parseDDL(raw,logId){
+  const up=raw.toUpperCase().replace(/;$/,'').trim();
+  function lg(msg,cls='ok'){const el=document.getElementById(logId);el.innerHTML+=`<div class="${cls}">${msg}</div>`;el.scrollTop=el.scrollHeight;}
+  if(up.startsWith('CREATE TABLE')){
+    const m=raw.match(/CREATE\s+TABLE\s+(\w+)\s*\((.+)\)/si);
+    if(!m){lg('❌ Syntax: CREATE TABLE Name (col TYPE constraint, ...)','err');return;}
+    const t=m[1].toUpperCase(),cols=m[2].split(',').map(c=>c.trim().split(/\s+/)[0]).filter(Boolean);
+    ddlDB[t]={columns:cols,rows:[]};
+    lg(`✅ Table <b>${t}</b> created &nbsp;— Columns: ${cols.join(', ')}`);
+  }else if(up.startsWith('ALTER TABLE')){
+    const aM=raw.match(/ALTER\s+TABLE\s+(\w+)\s+ADD\s+(\w+)/i);
+    const dM=raw.match(/ALTER\s+TABLE\s+(\w+)\s+DROP\s+COLUMN\s+(\w+)/i);
+    const mM=raw.match(/ALTER\s+TABLE\s+(\w+)\s+MODIFY\s+(\w+)/i);
+    if(aM){const t=aM[1].toUpperCase();if(!ddlDB[t]){lg(`❌ Table ${t} not found — CREATE it first.`,'err');return;}ddlDB[t].columns.push(aM[2]);lg(`✅ Column <b>${aM[2]}</b> added to ${t}`);}
+    else if(dM){const t=dM[1].toUpperCase();if(!ddlDB[t]){lg(`❌ Table ${t} not found.`,'err');return;}ddlDB[t].columns=ddlDB[t].columns.filter(c=>c.toLowerCase()!==dM[2].toLowerCase());lg(`✅ Column <b>${dM[2]}</b> dropped from ${t}`);}
+    else if(mM){lg(`✅ MODIFY noted — column type updated (structural change).`);}
+    else lg('❌ ALTER supports: ADD col TYPE | DROP COLUMN col | MODIFY col TYPE','err');
+  }else if(up.startsWith('DROP TABLE')){
+    const m=raw.match(/DROP\s+TABLE\s+(\w+)/i);if(m){delete ddlDB[m[1].toUpperCase()];lg(`🗑 Table <b>${m[1].toUpperCase()}</b> dropped permanently.`);}
+  }else if(up.startsWith('TRUNCATE')){
+    const m=raw.match(/TRUNCATE\s+(?:TABLE\s+)?(\w+)/i);if(m&&ddlDB[m[1].toUpperCase()]){ddlDB[m[1].toUpperCase()].rows=[];lg(`✅ Table ${m[1].toUpperCase()} truncated — all rows removed, structure kept.`);}
+  }else if(up==='SHOW TABLES'){
+    const list=Object.keys(ddlDB);
+    if(!list.length)lg('📋 No tables created yet. Try: CREATE TABLE Students (...)','inf');
+    else lg('📋 Tables: '+list.map(t=>`<b>${t}</b> [${ddlDB[t].columns.join(', ')}]`).join(' &nbsp;|&nbsp; '),'inf');
+  }else{lg('❌ Commands: CREATE TABLE | ALTER TABLE | DROP TABLE | TRUNCATE TABLE | SHOW TABLES','err');}
+}
+function runDDL(){const v=document.getElementById('ddlIn').value.trim();if(v)parseDDL(v,'ddlLog');}
+
+// Norm SQL editor
+const normDB={};
+function initNSql(){}
+function runNormSQL(){
+  const v=document.getElementById('normIn').value.trim();
+  const logId='normLog';
+  function lg(msg,cls='ok'){const el=document.getElementById(logId);el.innerHTML+=`<div class="${cls}">${msg}</div>`;el.scrollTop=el.scrollHeight;}
+  const up=v.toUpperCase().replace(/;$/,'').trim();
+  if(up.startsWith('CREATE TABLE')){
+    const m=v.match(/CREATE\s+TABLE\s+(\w+)\s*\((.+)\)/si);
+    if(!m){lg('❌ Syntax: CREATE TABLE Name (col TYPE, ...)','err');return;}
+    const t=m[1].toUpperCase(),cols=m[2].split(',').map(c=>c.trim().split(/\s+/)[0]).filter(Boolean);
+    normDB[t]={columns:cols};
+    lg(`✅ Table <b>${t}</b> created — Columns: ${cols.join(', ')}`);
+  }else if(up==='SHOW TABLES'){
+    const list=Object.keys(normDB);
+    if(!list.length)lg('📋 No tables yet.','inf');
+    else lg('📋 '+list.map(t=>`<b>${t}</b> [${normDB[t].columns.join(', ')}]`).join(' | '),'inf');
+  }else parseDDL(v,logId);
+}
+
+// ── DML SIMULATOR ────────────────────────────
+let dmlData=[],nxtId=5;
+function initDML(){
+  if(dmlData.length)return;
+  dmlData=[{id:1,name:'Alice',age:20,dept:'CS'},{id:2,name:'Bob',age:19,dept:'IT'},{id:3,name:'Carol',age:21,dept:'CS'},{id:4,name:'David',age:22,dept:'ECE'}];
+  renderDML(dmlData,'✅ Students table loaded — 4 rows ready.');
+}
+function resetDML(){dmlData=[];nxtId=5;initDML();document.getElementById('dmlIn').value='';}
+function renderDML(data,msg){
+  const el=document.getElementById('dmlRes');
+  let html=msg?`<div class="rmsg" style="color:var(--accent)">${msg}</div>`:'';
+  if(!data.length){el.innerHTML=html+'<div class="rmsg" style="color:var(--muted)">Table is empty.</div>';return;}
+  html+='<table><thead><tr><th>ID</th><th>Name</th><th>Age</th><th>Dept</th></tr></thead><tbody>';
+  data.forEach(r=>{html+=`<tr><td>${r.id}</td><td>${r.name}</td><td>${r.age}</td><td>${r.dept}</td></tr>`;});
+  el.innerHTML=html+'</tbody></table>';
+}
+function runDML(){
+  const raw=document.getElementById('dmlIn').value.trim(),up=raw.toUpperCase();
+  if(up==='SELECT ALL'||up==='SELECT *'||up==='SELECT ALL;'){renderDML(dmlData);return;}
+  if(up==='COUNT'){
+    const g={};dmlData.forEach(r=>{g[r.dept]=(g[r.dept]||0)+1;});
+    let h='<table><thead><tr><th>Department</th><th>Count</th></tr></thead><tbody>';
+    Object.entries(g).forEach(([d,c])=>{h+=`<tr><td>${d}</td><td>${c}</td></tr>`;});
+    document.getElementById('dmlRes').innerHTML=h+'</tbody></table>';return;
+  }
+  const selM=raw.match(/^SELECT\s+(\w+)$/i);
+  if(selM&&!['ALL','DISTINCT'].includes(selM[1].toUpperCase())){
+    const dept=selM[1].toUpperCase(),f=dmlData.filter(r=>r.dept.toUpperCase()===dept);
+    renderDML(f,`🔍 Filtered by dept=${selM[1]} — ${f.length} row(s)`);return;
+  }
+  if(up.startsWith('INSERT')){
+    const p=raw.replace(/^INSERT\s+/i,'').trim().split(/\s+/);
+    if(p.length>=2){dmlData.push({id:nxtId++,name:p[0],age:parseInt(p[1])||0,dept:p[2]||'CS'});renderDML(dmlData,`✅ Inserted: ${p[0]}`);}
+    else document.getElementById('dmlRes').innerHTML='<div class="rmsg err">❌ Format: INSERT Name Age Dept</div>';
+    return;
+  }
+  if(up.startsWith('DELETE')){
+    const m=raw.match(/\d+/);
+    if(m){const id=parseInt(m[0]),b=dmlData.length;dmlData=dmlData.filter(r=>r.id!==id);
+      if(dmlData.length<b)renderDML(dmlData,`🗑 Row id=${id} deleted.`);
+      else document.getElementById('dmlRes').innerHTML=`<div class="rmsg err">❌ ID ${id} not found.</div>`;}
+    else document.getElementById('dmlRes').innerHTML='<div class="rmsg err">❌ Format: DELETE id</div>';
+    return;
+  }
+  if(up.startsWith('UPDATE')){
+    const m=raw.match(/UPDATE\s+(\d+)\s+(\w+)=(\w+)/i);
+    if(m){const row=dmlData.find(r=>r.id===parseInt(m[1]));
+      if(row){row[m[2].toLowerCase()]=isNaN(m[3])?m[3]:parseInt(m[3]);renderDML(dmlData,`✅ Updated id=${m[1]}: ${m[2]}=${m[3]}`);}
+      else document.getElementById('dmlRes').innerHTML=`<div class="rmsg err">❌ ID ${m[1]} not found.</div>`;}
+    else document.getElementById('dmlRes').innerHTML='<div class="rmsg err">❌ Format: UPDATE id col=value</div>';
+    return;
+  }
+  document.getElementById('dmlRes').innerHTML='<div class="rmsg err">❌ Commands: SELECT ALL | SELECT DEPT | COUNT | INSERT Name Age Dept | DELETE id | UPDATE id col=val</div>';
+}
+
+// ── NORMALIZATION DEMO ───────────────────────
+const nData={
+  unf:{title:'UNF — Unnormalized Form',explain:'Multiple values are stored in single cells (ProductIDs, ProductNames, Quantities are comma-separated). This violates atomicity — a fundamental 1NF rule.',headers:['OrderID','CustomerName','City','ProductIDs','ProductNames','Quantities'],rows:[['1001','Alice','Delhi','P1, P2','Pen, Pencil','2, 5'],['1002','Bob','Mumbai','P2, P3','Pencil, Ruler','1, 3']],bad:[3,4,5]},
+  '1nf':{title:'1NF — First Normal Form',explain:'Each cell now holds exactly one atomic value. Multi-valued rows are split into multiple rows. Composite Primary Key defined: (OrderID, ProductID).',headers:['OrderID','CustomerName','City','ProductID','ProductName','Qty'],rows:[['1001','Alice','Delhi','P1','Pen','2'],['1001','Alice','Delhi','P2','Pencil','5'],['1002','Bob','Mumbai','P2','Pencil','1'],['1002','Bob','Mumbai','P3','Ruler','3']],bad:[]},
+  '2nf':{title:'2NF — Remove Partial Dependencies',explain:'CustomerName and City depend only on OrderID — not on the full composite key (OrderID, ProductID). These are moved to a separate Orders table. Partial dependency eliminated.',tables:[{n:'Orders',h:['OrderID (PK)','CustomerName','City'],r:[['1001','Alice','Delhi'],['1002','Bob','Mumbai']]},{n:'OrderItems',h:['OrderID (PK,FK)','ProductID (PK)','ProductName','Qty'],r:[['1001','P1','Pen','2'],['1001','P2','Pencil','5'],['1002','P2','Pencil','1'],['1002','P3','Ruler','3']]}]},
+  '3nf':{title:'3NF — Remove Transitive Dependencies',explain:'City depends on CustomerName (not directly on OrderID). This is a transitive dependency: OrderID → CustomerName → City. CustomerName+City are moved to a Customers table. All non-key attributes now depend directly only on the PK.',tables:[{n:'Customers',h:['CustomerID (PK)','CustomerName','City'],r:[['C1','Alice','Delhi'],['C2','Bob','Mumbai']]},{n:'Orders',h:['OrderID (PK)','CustomerID (FK)'],r:[['1001','C1'],['1002','C2']]},{n:'OrderItems',h:['OrderID (PK,FK)','ProductID (PK)','ProductName','Qty'],r:[['1001','P1','Pen','2'],['1001','P2','Pencil','5'],['1002','P2','Pencil','1'],['1002','P3','Ruler','3']]}]}
+};
+function showNorm(key,btn){
+  document.querySelectorAll('#p3-demo .nbtn').forEach(b=>b.classList.remove('active'));
+  if(btn)btn.classList.add('active');
+  const d=nData[key],el=document.getElementById('normDisp');
+  let html=`<div style="margin-bottom:10px"><b style="color:var(--accent2)">${d.title}</b><br><span style="font-size:.79rem;color:var(--muted)">${d.explain}</span></div>`;
+  if(d.tables){
+    d.tables.forEach(t=>{
+      html+=`<div style="margin-bottom:12px"><div style="font-family:var(--mono);font-size:.66rem;color:var(--aa,var(--accent));margin-bottom:5px;letter-spacing:1px">▶ ${t.n}</div>`;
+      html+='<div class="ntbl"><table><thead><tr>'+t.h.map(h=>`<th>${h}</th>`).join('')+'</tr></thead><tbody>';
+      t.r.forEach(r=>{html+='<tr>'+r.map(c=>`<td>${c}</td>`).join('')+'</tr>';});
+      html+='</tbody></table></div></div>';
+    });
+  }else{
+    html+='<div class="ntbl"><table><thead><tr>'+d.headers.map(h=>`<th>${h}</th>`).join('')+'</tr></thead><tbody>';
+    d.rows.forEach(r=>{html+='<tr>'+r.map((c,i)=>`<td class="${d.bad.includes(i)?'bad':''}">${c}</td>`).join('')+'</tr>';});
+    html+='</tbody></table></div>';
+  }
+  el.innerHTML=html;
+}
+
+// ── TRANSACTION SIMULATOR ────────────────────
+let balA=5000,balB=3000;
+function txn(a){
+  const msg=document.getElementById('txMsg');
+  if(a==='start'){
+    ['ts1','ts2','ts3'].forEach((id,i)=>setTimeout(()=>document.getElementById(id).className='txstep done',i*400));
+    setTimeout(()=>document.getElementById('ts4').className='txstep done',1300);
+    document.getElementById('accA').textContent='₹'+(balA-1000).toLocaleString()+' ⏳';
+    document.getElementById('accB').textContent='₹'+(balB+1000).toLocaleString()+' ⏳';
+    document.getElementById('startBtn').style.display='none';
+    document.getElementById('comBtn').style.display='';
+    document.getElementById('rbBtn').style.display='';
+    msg.textContent='Transaction in progress... Choose COMMIT to save or ROLLBACK to undo.';
+  }else if(a==='commit'){
+    balA-=1000;balB+=1000;
+    document.getElementById('accA').textContent='₹'+balA.toLocaleString();
+    document.getElementById('accB').textContent='₹'+balB.toLocaleString();
+    msg.innerHTML='<span style="color:var(--accent)">✅ COMMITTED — Both accounts updated permanently. Atomicity ✓  Durability ✓</span>';
+    document.getElementById('comBtn').style.display='none';document.getElementById('rbBtn').style.display='none';
+    document.getElementById('rstBtn').style.display='';
+  }else if(a==='rollback'){
+    document.getElementById('accA').textContent='₹'+balA.toLocaleString();
+    document.getElementById('accB').textContent='₹'+balB.toLocaleString();
+    ['ts1','ts2','ts3','ts4'].forEach(id=>document.getElementById(id).className='txstep fail');
+    msg.innerHTML='<span style="color:var(--accent2)">↩ ROLLED BACK — No changes made. Both accounts are exactly as before. Atomicity ✓ (all-or-nothing)</span>';
+    document.getElementById('comBtn').style.display='none';document.getElementById('rbBtn').style.display='none';
+    document.getElementById('rstBtn').style.display='';
+  }else if(a==='reset'){
+    balA=5000;balB=3000;
+    document.getElementById('accA').textContent='₹5,000';
+    document.getElementById('accB').textContent='₹3,000';
+    ['ts1','ts2','ts3','ts4'].forEach(id=>document.getElementById(id).className='txstep');
+    document.getElementById('startBtn').style.display='';
+    document.getElementById('comBtn').style.display='none';
+    document.getElementById('rbBtn').style.display='none';
+    document.getElementById('rstBtn').style.display='none';
+    msg.textContent='';
+  }
+}
+
+// ── INDEX SIMULATOR ──────────────────────────
+const stu=['Aarav','Amit','Anjali','Deepak','Fatima','Ishaan','Kavya','Meera','Nikhil','Priya','Rahul','Rohit','Sakshi','Shruti','Sneha','Tanvi','Umesh','Vikram','Yasmin','Zara'];
+const stuS=[...stu].sort();
+function initIdx(){
+  document.getElementById('linRows').innerHTML=stu.map(s=>`<div class="irow" id="l${s}">${s}</div>`).join('');
+  document.getElementById('idxRows').innerHTML=stuS.map(s=>`<div class="irow" id="i${s}">${s}</div>`).join('');
+}
+function runIdx(){
+  const q=document.getElementById('idxIn').value.trim();
+  document.querySelectorAll('.irow').forEach(r=>r.classList.remove('hi'));
+  if(!q){document.getElementById('linMsg').textContent='';document.getElementById('idxMsg').textContent='';return;}
+  // Linear
+  let lc=0,lf=false;
+  stu.forEach(s=>{lc++;if(s.toLowerCase()===q.toLowerCase()){document.getElementById('l'+s)?.classList.add('hi');lf=true;}});
+  document.getElementById('linMsg').textContent=lf?`Scanned ${lc}/${stu.length} rows — found.`:`Scanned all ${lc} rows — not found.`;
+  // Binary
+  let lo=0,hi=stuS.length-1,ic=0,iF=false;
+  while(lo<=hi){ic++;const m=Math.floor((lo+hi)/2),c=stuS[m].toLowerCase().localeCompare(q.toLowerCase());
+    if(c===0){document.getElementById('i'+stuS[m])?.classList.add('hi');iF=true;break;}
+    else if(c<0)lo=m+1;else hi=m-1;}
+  document.getElementById('idxMsg').textContent=iF?`Only ${ic} comparison(s) — found!`:`Checked ${ic} node(s) — not found.`;
+}
+
+// ── JOIN SIMULATOR ───────────────────────────
+const sRows=[{id:1,n:'Alice',d:'D1'},{id:2,n:'Bob',d:'D2'},{id:3,n:'Carol',d:'D1'},{id:4,n:'Riya',d:null}];
+const dRows=[{d:'D1',n:'CS'},{d:'D2',n:'IT'},{d:'D3',n:'ECE'}];
+const jDesc={inner:'INNER JOIN — Returns ONLY matching rows from both tables. Riya (no dept) is excluded. ECE (no students) is excluded.',left:'LEFT JOIN — ALL students returned. Riya appears with NULL dept. ECE is excluded.',right:'RIGHT JOIN — ALL departments returned. ECE appears with NULL students. Riya is excluded.',full:'FULL OUTER JOIN — ALL rows from BOTH tables. Riya gets NULL dept. ECE gets NULL students.'};
+function showJoin(type,btn){
+  document.querySelectorAll('#joinBtns .nbtn').forEach(b=>b.classList.remove('active'));
+  if(btn)btn.classList.add('active');
+  let rows=[];
+  if(type==='inner')sRows.forEach(s=>{const d=dRows.find(d=>d.d===s.d);if(d)rows.push([s.id,s.n,d.n]);});
+  else if(type==='left')sRows.forEach(s=>{const d=dRows.find(d=>d.d===s.d);rows.push([s.id,s.n,d?d.n:'NULL']);});
+  else if(type==='right'){dRows.forEach(d=>{const ss=sRows.filter(s=>s.d===d.d);if(ss.length)ss.forEach(s=>rows.push([s.id,s.n,d.n]));else rows.push(['NULL','NULL',d.n]);});}
+  else{sRows.forEach(s=>{const d=dRows.find(d=>d.d===s.d);rows.push([s.id,s.n,d?d.n:'NULL']);});dRows.forEach(d=>{if(!sRows.find(s=>s.d===d.d))rows.push(['NULL','NULL',d.n]);});}
+  let html=`<p style="font-size:.79rem;color:var(--muted);margin-bottom:10px">${jDesc[type]}</p>`;
+  html+='<div class="res"><table><thead><tr><th>Student ID</th><th>Student Name</th><th>Department</th></tr></thead><tbody>';
+  rows.forEach(r=>{html+=`<tr>${r.map(c=>`<td style="${c==='NULL'?'color:var(--accent2)':''}">${c}</td>`).join('')}</tr>`;});
+  document.getElementById('joinRes').innerHTML=html+'</tbody></table></div>';
+}
+
+// ── QUIZ ENGINE ──────────────────────────────
+const QZ={
+  1:[
+    {q:'What does DDL stand for?',o:['Data Deletion Logic','Data Definition Language','Dynamic Data Layer','Data Design Language'],a:1,e:'DDL = Data Definition Language — commands that define database structure (CREATE, ALTER, DROP).'},
+    {q:'Which command permanently removes a table including its structure?',o:['TRUNCATE','DELETE','DROP','REMOVE'],a:2,e:'DROP TABLE removes both the table structure and all data permanently.'},
+    {q:'What is the difference between TRUNCATE and DROP?',o:['Same effect','TRUNCATE keeps the table structure; DROP removes everything','DROP keeps data','TRUNCATE is a DML command'],a:1,e:'TRUNCATE removes all rows but the empty table remains. DROP removes the table entirely.'},
+    {q:'Which constraint ensures a column value must satisfy a condition?',o:['NOT NULL','UNIQUE','DEFAULT','CHECK'],a:3,e:'CHECK constraint validates that column values meet a specified condition, e.g., age >= 16.'},
+  ],
+  2:[
+    {q:'Which clause filters results AFTER a GROUP BY?',o:['WHERE','FILTER','HAVING','BETWEEN'],a:2,e:'HAVING filters grouped results. WHERE filters individual rows before grouping.'},
+    {q:'What does SELECT DISTINCT do?',o:['Sorts results ascending','Removes NULL rows','Eliminates duplicate result rows','Creates an index'],a:2,e:'DISTINCT removes duplicate rows from the SELECT result set.'},
+    {q:'Which DML command changes values in existing rows?',o:['INSERT','ALTER','UPDATE','MODIFY'],a:2,e:'UPDATE modifies existing row values. ALTER is DDL — it changes table structure.'},
+    {q:'What aggregate function counts the number of rows?',o:['SUM()','MAX()','AVG()','COUNT()'],a:3,e:'COUNT(*) counts total rows; COUNT(col) counts non-NULL values in that column.'},
+  ],
+  3:[
+    {q:'What is the core requirement of 1NF?',o:['No duplicate rows','Every cell must hold exactly one (atomic) value','No NULL values allowed','Foreign keys required'],a:1,e:'1NF requires all column values to be atomic — no multi-valued or repeating groups.'},
+    {q:'Partial dependency occurs in tables with:',o:['A simple single-column primary key','A composite (multi-column) primary key','A foreign key only','An index'],a:1,e:'Partial dependency: a non-key attribute depends on only PART of a composite primary key, not the whole key.'},
+    {q:'3NF eliminates:',o:['Multi-valued attributes','Partial dependencies','Transitive dependencies','Duplicate rows'],a:2,e:'3NF removes transitive dependencies — non-key attributes must depend only on the primary key.'},
+    {q:'Which anomaly occurs when deleting a row accidentally removes other important data?',o:['Insertion anomaly','Update anomaly','Deletion anomaly','Referential anomaly'],a:2,e:'Deletion anomaly: removing one record unintentionally destroys other needed information stored in the same row.'},
+  ],
+  4:[
+    {q:'What does the "A" in ACID stand for?',o:['Availability','Atomicity','Authorization','Aggregation'],a:1,e:'A = Atomicity — a transaction is all-or-nothing. Either all operations succeed or none do.'},
+    {q:'What does ROLLBACK do?',o:['Saves all changes permanently','Undoes all changes since the last BEGIN/COMMIT','Deletes all tables','Rebuilds indexes'],a:1,e:'ROLLBACK reverses all changes made in the current transaction, restoring the previous state.'},
+    {q:'Which ACID property ensures committed data survives a system crash?',o:['Atomicity','Consistency','Isolation','Durability'],a:3,e:'D = Durability — after COMMIT, data is written to disk via WAL and survives crashes.'},
+    {q:'SAVEPOINT is used to:',o:['Commit the entire transaction','Create a checkpoint for partial rollback','Drop all changes','Create an index'],a:1,e:'SAVEPOINT creates a named checkpoint. You can ROLLBACK TO that savepoint to undo only part of the transaction.'},
+  ],
+  5:[
+    {q:'What data structure does a typical database index use?',o:['Stack','Linked List','B-Tree','Hash Map only'],a:2,e:'B-Tree (Balanced Tree) is the standard index structure — provides O(log n) search, insert, and delete.'},
+    {q:'When is an index least useful?',o:['Column used in WHERE clause','Column used in ORDER BY','Low-cardinality column (few unique values)','Column used in JOIN'],a:2,e:'Low cardinality (e.g., gender: M/F) means the index still returns many rows — a full scan may be equally fast.'},
+    {q:'What is the time complexity of a B-Tree index search?',o:['O(n)','O(n²)','O(log n)','O(1)'],a:2,e:'B-Tree search is O(log n). For 1,000,000 rows that is about 20 comparisons instead of 1,000,000.'},
+    {q:'Which SQL command shows whether a query uses an index?',o:['CHECK INDEX','DESCRIBE','EXPLAIN','ANALYZE'],a:2,e:'EXPLAIN (or EXPLAIN ANALYZE) outputs the query execution plan, including whether an index is used.'},
+  ],
+  6:[
+    {q:'What does INNER JOIN return?',o:['All rows from the left table','All rows from both tables','Only rows matching the join condition in BOTH tables','All rows from the right table'],a:2,e:'INNER JOIN returns only rows where the join condition is satisfied in both tables.'},
+    {q:'How is a Many-to-Many (M:N) relationship implemented?',o:['Foreign key only','A junction/bridge table with two foreign keys','Primary key only','An index on both tables'],a:1,e:'M:N relationships are resolved by creating a junction table containing foreign keys from both related tables.'},
+    {q:'In a LEFT JOIN, what appears for unmatched right-table columns?',o:['Row is skipped','An error occurs','NULL','Zero (0)'],a:2,e:'LEFT JOIN keeps all left-table rows; right-side columns that have no match are filled with NULL.'},
+    {q:'Which JOIN returns all rows from both tables, with NULLs for non-matches?',o:['INNER JOIN','LEFT JOIN','RIGHT JOIN','FULL OUTER JOIN'],a:3,e:'FULL OUTER JOIN returns every row from both tables — NULLs appear wherever there is no matching row on either side.'},
+  ],
+};
+const QST={};
+function initQuiz(n){const el=document.getElementById('q'+n);if(!el)return;QST[n]={i:0,sc:0,done:false};renderQ(n);}
+function renderQ(n){
+  const el=document.getElementById('q'+n),qs=QZ[n],s=QST[n];
+  if(s.i>=qs.length){el.innerHTML=`<div class="q-score"><span class="score-n">${s.sc}/${qs.length}</span>${s.sc===qs.length?'🎉 Perfect!':s.sc>=qs.length/2?'👍 Good Job!':'📚 Review theory and try again!'}<br><button class="q-restart" onclick="initQuiz(${n})">🔄 Restart Quiz</button></div>`;return;}
+  const q=qs[s.i],p=Math.round((s.i/qs.length)*100);
+  let h=`<div class="prog-row"><div class="prog-bar"><div class="prog-fill" style="width:${p}%"></div></div><span class="prog-lbl">Q${s.i+1} / ${qs.length}</span></div>`;
+  h+=`<div class="q-txt">Q${s.i+1}: ${q.q}</div><div class="q-opts">`;
+  q.o.forEach((o,i)=>{h+=`<button class="q-opt" onclick="ansQ(${n},${i})">${o}</button>`;});
+  h+=`</div><div class="q-fb" id="fb${n}"></div><button class="q-next" id="nx${n}" onclick="nxtQ(${n})">Next Question →</button>`;
+  el.innerHTML=h;
+}
+function ansQ(n,ch){
+  const s=QST[n];if(s.done)return;s.done=true;
+  const q=QZ[n][s.i];
+  document.querySelectorAll('#q'+n+' .q-opt').forEach((o,i)=>{o.disabled=true;if(i===q.a)o.classList.add('ok');else if(i===ch)o.classList.add('ng');});
+  if(ch===q.a)s.sc++;
+  const fb=document.getElementById('fb'+n);
+  fb.style.display='block';fb.style.background=ch===q.a?'rgba(0,212,170,.1)':'rgba(255,107,107,.1)';fb.style.color=ch===q.a?'var(--accent)':'var(--accent2)';
+  fb.innerHTML=(ch===q.a?'✅ Correct! ':'❌ Incorrect. ')+q.e;
+  document.getElementById('nx'+n).style.display='';
+}
+function nxtQ(n){QST[n].i++;QST[n].done=false;renderQ(n);}
+
+// ── INIT ─────────────────────────────────────
+window.addEventListener('DOMContentLoaded',()=>{
+  initDML();initIdx();
+  showNorm('unf',null);
+  showJoin('inner',null);
+});
+</script>
+</body>
+</html>
